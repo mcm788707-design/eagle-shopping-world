@@ -193,7 +193,7 @@ async function renderHomeView(container) {
           <div class="app-big-discount">35% OFF</div>
           <div class="app-tagline">on first order</div>
           <div class="app-only-text">*Only on App</div>
-          <button class="btn btn-app-download" onclick="alert('Download the Shopverse Android & iOS mobile app from the App Store!')">Download Now</button>
+          <button class="btn btn-app-download" onclick="alert('Download the Eagle Shopping World Android & iOS mobile app from the App Store!')">Download Now</button>
           <div class="app-tc-text">*T&amp;C Apply</div>
         </div>
         <div class="app-banner-right">
@@ -669,7 +669,7 @@ async function renderLoginView(container) {
   container.innerHTML = `
     <div class="auth-view-wrap">
       <div class="auth-card">
-        <h2>Welcome to Shopverse</h2>
+        <h2>Welcome to Eagle Shopping World</h2>
         <p style="color:var(--color-text-muted);font-size:13px;margin-bottom:16px">Log in to track orders, manage your wishlist and checkout faster.</p>
         <form id="login-form">
           <label class="form-label">Email Address</label>
@@ -684,7 +684,7 @@ async function renderLoginView(container) {
         </form>
 
         <p style="text-align:center;font-size:13px;margin-top:18px">
-          New to Shopverse? <a href="#/register" style="color:var(--color-primary);font-weight:700">Create an Account</a>
+          New to Eagle Shopping World? <a href="#/register" style="color:var(--color-primary);font-weight:700">Create an Account</a>
         </p>
 
         <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:16px;background:#fafafa;padding:8px 12px;border-radius:4px">

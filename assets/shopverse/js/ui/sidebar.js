@@ -113,10 +113,10 @@ export function renderSidebar(container) {
         </div>
       </div>
 
-      <!-- Shopverse Gold -->
+      <!-- Eagle Gold -->
       <div class="filter-group">
         <div class="filter-group-header">
-          <span>Shopverse Gold</span>
+          <span>Eagle Gold</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
         <div class="filter-group-body">
@@ -127,10 +127,10 @@ export function renderSidebar(container) {
         </div>
       </div>
 
-      <!-- Shopverse Mall -->
+      <!-- Eagle Mall -->
       <div class="filter-group">
         <div class="filter-group-header">
-          <span>Shopverse Mall</span>
+          <span>Eagle Mall</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
         <div class="filter-group-body">

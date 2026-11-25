@@ -1,5 +1,6 @@
 /**
  * Admin Panel & Bulk Excel Import/Export Component (admin.js)
+ * Clean, robust, modular administrative dashboard for Eagle Shopping World.
  */
 
 import { api } from '../api.js';
@@ -56,8 +57,6 @@ export async function renderAdminPanel(container) {
   const productsRes = await api.getProducts({ limit: 500 });
   const allProducts = productsRes.items;
   const allOrders = await api.getOrders();
-  const allMessages = await api.getContactMessages();
-  let contactConfig = await api.getContactData();
   const totalRev = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
@@ -72,12 +71,15 @@ export async function renderAdminPanel(container) {
       window.removeEventListener('paste', activePasteListener);
       activePasteListener = null;
     }
+
+    const isEdit = Boolean(editingProduct);
+
     container.innerHTML = `
       <div class="container admin-view-wrap">
         <div class="flex justify-between items-center" style="margin-bottom:20px">
           <div>
             <h1 style="font-size:28px;font-weight:900;color:var(--color-primary-dark)">Admin Dashboard</h1>
-            <p style="color:var(--color-text-muted);font-size:14px">Welcome back, ${session.name}</p>
+            <p style="color:var(--color-text-muted);font-size:14px">Welcome back, ${session.name || 'Eagle Shopping World Administrator'}</p>
           </div>
           <button class="btn btn-outline btn-sm" id="btn-admin-logout">Log Out</button>
         </div>
@@ -93,12 +95,12 @@ export async function renderAdminPanel(container) {
             <div class="admin-stat-lbl">Total Orders</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val">${allMessages.length}</div>
-            <div class="admin-stat-lbl">Customer Inquiries</div>
-          </div>
-          <div class="admin-stat-card">
             <div class="admin-stat-val">₹${totalRev.toLocaleString('en-IN')}</div>
             <div class="admin-stat-lbl">Gross Revenue</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-val">100+</div>
+            <div class="admin-stat-lbl">Enterprise Clients</div>
           </div>
         </div>
 
@@ -107,18 +109,16 @@ export async function renderAdminPanel(container) {
           <button class="admin-tab-btn ${activeTab === 'products' ? 'active' : ''}" data-tab="products">
             Products Inventory (${allProducts.length})
           </button>
-          <button class="admin-tab-btn ${activeTab === 'add' && !editingProduct ? 'active' : ''}" data-tab="add">
+          <button class="admin-tab-btn ${activeTab === 'add' && !isEdit ? 'active' : ''}" data-tab="add">
             + Add New Product
           </button>
-          ${editingProduct ? `
+          ${isEdit ? `
             <button class="admin-tab-btn ${activeTab === 'add' ? 'active' : ''}" data-tab="edit" style="color:var(--color-primary);font-weight:800;border:1px solid var(--color-primary);background:${activeTab === 'add' ? 'var(--color-primary)' : 'var(--color-primary-light)'};color:${activeTab === 'add' ? '#fff' : 'var(--color-primary)'}">
               ✏️ Edit Product (#${editingProduct.id})
             </button>
           ` : ''}
           <button class="admin-tab-btn ${activeTab === 'import' ? 'active' : ''}" data-tab="import">Excel Bulk Import / Export</button>
           <button class="admin-tab-btn ${activeTab === 'orders' ? 'active' : ''}" data-tab="orders">Customer Orders (${allOrders.length})</button>
-          <button class="admin-tab-btn ${activeTab === 'messages' ? 'active' : ''}" data-tab="messages">Customer Messages (${allMessages.length})</button>
-          <button class="admin-tab-btn ${activeTab === 'contact' ? 'active' : ''}" data-tab="contact">Contact Page Settings</button>
         </div>
 
         <!-- Tab Contents -->
@@ -209,7 +209,6 @@ export async function renderAdminPanel(container) {
         };
       });
     } else if (activeTab === 'add') {
-      const isEdit = Boolean(editingProduct);
       const catList = [
         'Kurti, Saree & Lehenga',
         'Women Western',
@@ -494,7 +493,10 @@ export async function renderAdminPanel(container) {
       cancelHandlers.forEach(btn => {
         if (btn) {
           btn.onclick = () => {
-            window.removeEventListener('paste', pasteListener);
+            if (activePasteListener) {
+              window.removeEventListener('paste', activePasteListener);
+              activePasteListener = null;
+            }
             editingProduct = null;
             uploadedImageDataUrl = null;
             activeTab = 'products';
@@ -527,7 +529,10 @@ export async function renderAdminPanel(container) {
 
           await api.updateProduct(editingProduct.id, updates);
           store.toast(`Product #${editingProduct.id} "${updates.name}" updated successfully! 🎉`);
-          window.removeEventListener('paste', pasteListener);
+          if (activePasteListener) {
+            window.removeEventListener('paste', activePasteListener);
+            activePasteListener = null;
+          }
           editingProduct = null;
           uploadedImageDataUrl = null;
           activeTab = 'products';
@@ -552,7 +557,10 @@ export async function renderAdminPanel(container) {
 
           await api.addProduct(newP);
           store.toast('New product added successfully! 🎉');
-          window.removeEventListener('paste', pasteListener);
+          if (activePasteListener) {
+            window.removeEventListener('paste', activePasteListener);
+            activePasteListener = null;
+          }
           uploadedImageDataUrl = null;
           activeTab = 'products';
           renderAdminPanel(container);
@@ -626,7 +634,7 @@ export async function renderAdminPanel(container) {
               } else {
                 validRows.push({
                   name: String(clean.name).trim(),
-                  brand: String(clean.brand || 'Shopverse Brand').trim(),
+                  brand: String(clean.brand || 'Eagle Shopping World Brand').trim(),
                   category: String(clean.category).trim(),
                   subcategory: String(clean.subcategory || 'General').trim(),
                   price: parseFloat(clean.price) || 199,
@@ -658,7 +666,7 @@ export async function renderAdminPanel(container) {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(sample);
         XLSX.utils.book_append_sheet(wb, ws, "Products_Template");
-        XLSX.writeFile(wb, "Shopverse_Product_Import_Template.xlsx");
+        XLSX.writeFile(wb, "Eagle_Shopping_World_Product_Import_Template.xlsx");
       };
 
       document.getElementById('btn-export-prods').onclick = () => {
@@ -666,7 +674,7 @@ export async function renderAdminPanel(container) {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(allProducts);
         XLSX.utils.book_append_sheet(wb, ws, "Products");
-        XLSX.writeFile(wb, "Shopverse_Products_Catalog.xlsx");
+        XLSX.writeFile(wb, "Eagle_Shopping_World_Products_Catalog.xlsx");
       };
 
       document.getElementById('btn-export-orders').onclick = () => {
@@ -674,7 +682,7 @@ export async function renderAdminPanel(container) {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(allOrders);
         XLSX.utils.book_append_sheet(wb, ws, "Orders");
-        XLSX.writeFile(wb, "Shopverse_Orders.xlsx");
+        XLSX.writeFile(wb, "Eagle_Shopping_World_Orders.xlsx");
       };
     } else if (activeTab === 'orders') {
       tabContent.innerHTML = `
@@ -721,348 +729,6 @@ export async function renderAdminPanel(container) {
           store.toast('Order status updated!');
         };
       });
-    } else if (activeTab === 'messages') {
-      tabContent.innerHTML = `
-        <div class="checkout-box" style="max-width:100%">
-          <div class="flex justify-between items-center" style="margin-bottom:16px;flex-wrap:wrap;gap:12px">
-            <div>
-              <h3 style="font-size:22px;font-weight:900;color:var(--color-primary-dark)">
-                Customer Inquiries &amp; Messages (${allMessages.length})
-              </h3>
-              <p style="color:var(--color-text-muted);font-size:13px;margin:3px 0 0">
-                Inquiries submitted via the Contact Us form (#/contact). Saved in isolated data layer.
-              </p>
-            </div>
-            <div class="flex gap-2">
-              <button class="btn btn-outline btn-sm" id="btn-export-messages" style="font-weight:700">
-                📤 Export to Excel (.xlsx)
-              </button>
-            </div>
-          </div>
-
-          <div class="admin-table-wrap">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Ref ID</th>
-                  <th>Date</th>
-                  <th>Customer</th>
-                  <th>Contact</th>
-                  <th>Subject</th>
-                  <th>Message Preview</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${!allMessages.length ? `<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--color-text-muted)">No customer inquiries yet. Submit an inquiry through the Contact page (#/contact) to test!</td></tr>` : allMessages.map(m => `
-                  <tr data-id="${m.id}">
-                    <td><b>${esc(m.id)}</b></td>
-                    <td><small style="color:var(--color-text-muted)">${new Date(m.date).toLocaleDateString('en-IN')}<br>${new Date(m.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</small></td>
-                    <td><b>${esc(m.name)}</b></td>
-                    <td>
-                      <a href="mailto:${esc(m.email)}" style="color:var(--color-primary);text-decoration:none;font-weight:600">${esc(m.email)}</a><br>
-                      <a href="tel:${esc(m.phone)}" style="color:var(--color-text-muted);font-size:12px">${esc(m.phone)}</a>
-                    </td>
-                    <td><span style="background:var(--color-primary-light);color:var(--color-primary);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:800">${esc(m.subject)}</span></td>
-                    <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.message)}</td>
-                    <td>
-                      <select class="msg-status-select" data-id="${m.id}" style="border:1px solid #d4d5d9;border-radius:4px;padding:4px 8px;font-size:12px;font-weight:700">
-                        ${['New', 'In progress', 'Resolved'].map(st => `
-                          <option value="${st}" ${m.status === st ? 'selected' : ''}>${st}</option>
-                        `).join('')}
-                      </select>
-                    </td>
-                    <td style="white-space:nowrap">
-                      <button class="btn btn-outline btn-sm btn-view-msg" data-id="${m.id}" style="font-size:12px;padding:4px 8px;margin-right:4px">
-                        👁️ View
-                      </button>
-                      <button class="btn btn-outline btn-sm btn-del-msg" data-id="${m.id}" style="color:#c0392b;border-color:#f5c6cb;font-size:12px;padding:4px 8px">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- View Message Modal Dialog -->
-        <div id="msg-detail-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;padding:20px">
-          <div style="background:#ffffff;border-radius:12px;max-width:540px;width:100%;padding:28px;box-shadow:0 12px 36px rgba(0,0,0,0.2)">
-            <div class="flex justify-between items-center" style="margin-bottom:16px;border-bottom:1px solid #eee;padding-bottom:10px">
-              <h3 style="font-size:18px;font-weight:800;color:var(--color-primary-dark)" id="modal-msg-title">Message Details</h3>
-              <button type="button" id="btn-close-msg-modal" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888">&times;</button>
-            </div>
-            <div id="modal-msg-body" style="font-size:14px;line-height:1.6;color:#333"></div>
-            <div style="margin-top:20px;text-align:right">
-              <button type="button" class="btn btn-primary btn-sm" id="btn-modal-close-action">Close</button>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Status change
-      tabContent.querySelectorAll('.msg-status-select').forEach(sel => {
-        sel.onchange = async () => {
-          const id = sel.dataset.id;
-          await api.updateContactMessageStatus(id, sel.value);
-          store.toast(`Message #${id} marked as "${sel.value}"`);
-        };
-      });
-
-      // View message
-      const modal = document.getElementById('msg-detail-modal');
-      const modalTitle = document.getElementById('modal-msg-title');
-      const modalBody = document.getElementById('modal-msg-body');
-      const closeModal = () => { if (modal) modal.style.display = 'none'; };
-      document.getElementById('btn-close-msg-modal').onclick = closeModal;
-      document.getElementById('btn-modal-close-action').onclick = closeModal;
-
-      tabContent.querySelectorAll('.btn-view-msg').forEach(btn => {
-        btn.onclick = () => {
-          const id = btn.dataset.id;
-          const msg = allMessages.find(m => String(m.id) === String(id));
-          if (!msg) return;
-          modalTitle.textContent = `Inquiry ${msg.id} - ${msg.subject}`;
-          modalBody.innerHTML = `
-            <div style="margin-bottom:12px">
-              <b>From:</b> ${esc(msg.name)} &lt;<a href="mailto:${esc(msg.email)}">${esc(msg.email)}</a>&gt;<br>
-              <b>Phone:</b> <a href="tel:${esc(msg.phone)}">${esc(msg.phone)}</a><br>
-              <b>Date:</b> ${new Date(msg.date).toLocaleString('en-IN')}<br>
-              <b>Status:</b> <span style="font-weight:700;color:var(--color-primary)">${esc(msg.status)}</span>
-            </div>
-            <div style="background:#f9f9fb;border:1px solid #e5e5ea;border-radius:8px;padding:14px;white-space:pre-wrap;font-size:13px">
-              ${esc(msg.message)}
-            </div>
-          `;
-          modal.style.display = 'flex';
-        };
-      });
-
-      // Delete message
-      tabContent.querySelectorAll('.btn-del-msg').forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.dataset.id;
-          if (confirm(`Delete message #${id}?`)) {
-            await api.deleteContactMessage(id);
-            store.toast('Message deleted.');
-            renderAdminPanel(container);
-          }
-        };
-      });
-
-      // Export to Excel
-      document.getElementById('btn-export-messages').onclick = () => {
-        if (typeof XLSX === 'undefined') return store.toast('SheetJS library is still loading.');
-        const wb = XLSX.utils.book_new();
-        const exportData = allMessages.map(m => ({
-          Reference_ID: m.id,
-          Date: new Date(m.date).toLocaleString('en-IN'),
-          Name: m.name,
-          Email: m.email,
-          Phone: m.phone,
-          Subject: m.subject,
-          Status: m.status,
-          Message: m.message
-        }));
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        XLSX.utils.book_append_sheet(wb, ws, "Messages");
-        XLSX.writeFile(wb, "Shopverse_Customer_Messages.xlsx");
-        store.toast('Exported customer messages to Excel! 📄');
-      };
-    } else if (activeTab === 'contact') {
-      const cfg = contactConfig || {};
-      tabContent.innerHTML = `
-        <div class="checkout-box" style="max-width:840px">
-          <div class="flex justify-between items-center" style="margin-bottom:16px;border-bottom:1px solid #f0f0f4;padding-bottom:12px;flex-wrap:wrap;gap:12px">
-            <div>
-              <h3 style="font-size:22px;font-weight:900;color:var(--color-primary-dark)">
-                Contact Page Configuration
-              </h3>
-              <p style="color:var(--color-text-muted);font-size:13px;margin:3px 0 0">
-                Customize titles, leadership quote, team contacts, pan-India cities, and Google Map.
-              </p>
-            </div>
-            <div class="flex gap-2">
-              <a href="#/contact" target="_blank" class="btn btn-outline btn-sm" style="font-size:12px">
-                👁️ Preview Live Page (#/contact)
-              </a>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-reset-contact" style="color:#c0392b;border-color:#f5c6cb;font-size:12px">
-                ↺ Reset to Defaults
-              </button>
-            </div>
-          </div>
-
-          <form id="form-contact-editor">
-            <!-- Hero Section Settings -->
-            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:16px 0 8px">1. Hero Banner</h4>
-            <div class="flex gap-4">
-              <div style="flex:1">
-                <label class="form-label">Hero Title</label>
-                <input class="form-input" name="hero_title" value="${esc(cfg.hero?.title || 'Contact Us')}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Breadcrumb</label>
-                <input class="form-input" name="hero_breadcrumb" value="${esc(cfg.hero?.breadcrumb || 'Home / Contact Us')}">
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <div style="flex:1">
-                <label class="form-label">Hero BG Gradient Start</label>
-                <input class="form-input" name="hero_bg_start" value="${esc(cfg.hero?.bgGradientFrom || '#28122c')}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Hero BG Gradient End</label>
-                <input class="form-input" name="hero_bg_end" value="${esc(cfg.hero?.bgGradientTo || '#4a1240')}">
-              </div>
-            </div>
-
-            <!-- Leadership Quote -->
-            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">2. Leadership Message</h4>
-            <label class="form-label">Founder Quote</label>
-            <textarea class="form-textarea" name="lead_quote" rows="2">${esc(cfg.leadership?.quote || '')}</textarea>
-            <div class="flex gap-4">
-              <div style="flex:1">
-                <label class="form-label">Author Name</label>
-                <input class="form-input" name="lead_author" value="${esc(cfg.leadership?.author || 'M.S. Lingam')}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Author Role</label>
-                <input class="form-input" name="lead_role" value="${esc(cfg.leadership?.role || 'Founder & Managing Director')}">
-              </div>
-            </div>
-
-            <!-- Stats -->
-            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">3. Animated Count-Up Stats</h4>
-            <div class="flex gap-3">
-              <div style="flex:1">
-                <label class="form-label">Established Year</label>
-                <input type="number" class="form-input" name="stat_0_val" value="${cfg.stats?.[0]?.value || 2018}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Regional Branches</label>
-                <input type="number" class="form-input" name="stat_1_val" value="${cfg.stats?.[1]?.value || 4}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Enterprise Clients</label>
-                <input type="number" class="form-input" name="stat_2_val" value="${cfg.stats?.[2]?.value || 100}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Cities Count</label>
-                <input type="number" class="form-input" name="stat_3_val" value="${cfg.stats?.[3]?.value || 17}">
-              </div>
-            </div>
-
-            <!-- Live Chat & Corporate Office -->
-            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">4. Live Chat &amp; Headquarters</h4>
-            <div class="flex gap-4">
-              <div style="flex:1">
-                <label class="form-label">WhatsApp Chat Link</label>
-                <input class="form-input" name="livechat_url" value="${esc(cfg.liveChat?.whatsappUrl || 'https://wa.me/919538998799')}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Corporate Email</label>
-                <input class="form-input" name="corp_email" value="${esc(cfg.grievance?.corporateDeskEmail || 'info@eaglegroupsindia.com')}">
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <div style="flex:1">
-                <label class="form-label">Headquarters Address</label>
-                <input class="form-input" name="reg_hq" value="${esc(cfg.registeredOffice?.headquarters || 'Bengaluru, Karnataka, India')}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Regional Hubs</label>
-                <input class="form-input" name="reg_hubs" value="${esc(cfg.registeredOffice?.regionalHubs || 'Bengaluru · Hyderabad · Chennai')}">
-              </div>
-            </div>
-
-            <!-- Google Map -->
-            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">5. Google Map Location</h4>
-            <div class="flex gap-4">
-              <div style="flex:1">
-                <label class="form-label">Map Address</label>
-                <input class="form-input" name="map_address" value="${esc(cfg.map?.address || 'Bengaluru, Karnataka 560103, India')}">
-              </div>
-              <div style="flex:1">
-                <label class="form-label">Map Directions Link</label>
-                <input class="form-input" name="map_directions" value="${esc(cfg.map?.directionsUrl || 'https://maps.google.com/?q=Bengaluru+Karnataka+India')}">
-              </div>
-            </div>
-            <label class="form-label">Google Map Embed Iframe URL</label>
-            <input class="form-input" name="map_embed" value="${esc(cfg.map?.embedUrl || '')}">
-
-            <div class="flex gap-3 items-center" style="margin-top:24px">
-              <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:15px;font-weight:800">
-                💾 Save Contact Page Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      `;
-
-      // Save Contact Changes
-      document.getElementById('form-contact-editor').onsubmit = async (e) => {
-        e.preventDefault();
-        const f = new FormData(e.target);
-
-        const updated = {
-          ...cfg,
-          hero: {
-            ...cfg.hero,
-            title: f.get('hero_title').trim(),
-            breadcrumb: f.get('hero_breadcrumb').trim(),
-            bgGradientFrom: f.get('hero_bg_start').trim(),
-            bgGradientTo: f.get('hero_bg_end').trim()
-          },
-          leadership: {
-            ...cfg.leadership,
-            quote: f.get('lead_quote').trim(),
-            author: f.get('lead_author').trim(),
-            role: f.get('lead_role').trim()
-          },
-          stats: [
-            { value: parseInt(f.get('stat_0_val'), 10) || 2018, suffix: "", label: "Established" },
-            { value: parseInt(f.get('stat_1_val'), 10) || 4, suffix: "", label: "Regional Branches" },
-            { value: parseInt(f.get('stat_2_val'), 10) || 100, suffix: "+", label: "Enterprise Clients" },
-            { value: parseInt(f.get('stat_3_val'), 10) || 17, suffix: "", label: "Cities across 9+ States" }
-          ],
-          liveChat: {
-            ...cfg.liveChat,
-            whatsappUrl: f.get('livechat_url').trim()
-          },
-          grievance: {
-            ...cfg.grievance,
-            corporateDeskEmail: f.get('corp_email').trim()
-          },
-          registeredOffice: {
-            ...cfg.registeredOffice,
-            headquarters: f.get('reg_hq').trim(),
-            regionalHubs: f.get('reg_hubs').trim()
-          },
-          map: {
-            ...cfg.map,
-            address: f.get('map_address').trim(),
-            directionsUrl: f.get('map_directions').trim(),
-            embedUrl: f.get('map_embed').trim()
-          }
-        };
-
-        await api.updateContactData(updated);
-        contactConfig = updated;
-        store.toast('Contact Page Configuration Saved! 🎉');
-        renderAdminPanel(container);
-      };
-
-      // Reset to Defaults
-      document.getElementById('btn-reset-contact').onclick = async () => {
-        if (confirm('Reset contact page data to default values?')) {
-          contactConfig = await api.resetContactData();
-          store.toast('Contact data reset to defaults.');
-          renderAdminPanel(container);
-        }
-      };
     }
 
     // Tab buttons
@@ -1083,6 +749,10 @@ export async function renderAdminPanel(container) {
     });
 
     document.getElementById('btn-admin-logout').onclick = async () => {
+      if (activePasteListener) {
+        window.removeEventListener('paste', activePasteListener);
+        activePasteListener = null;
+      }
       await api.logout();
       store.state.user = null;
       store.toast('Logged out');

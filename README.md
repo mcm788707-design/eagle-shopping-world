@@ -1,4 +1,4 @@
-# Shopverse – Indian Value E-Commerce Web Application
+# Eagle Shopping World – Indian Value E-Commerce Web Application
 
 A pixel-faithful, responsive clone of an Indian value e-commerce home page (inspired by Meesho) built with **plain HTML5, CSS3, and vanilla JavaScript (ES modules)**. No third-party frameworks.
 
@@ -51,7 +51,7 @@ Open your browser at:
 ## 📑 10 Home Page Sections Checklist
 
 1. **Header (Sticky)**
-   - Plum geometric lowercase text logo `shopverse`.
+   - Premium gold gradient text logo `Eagle Shopping World`.
    - Wide search bar with magnifier icon, placeholder *"Try Saree, Kurti or Search by Product Code"*, and live debounced dropdown suggestions.
    - Right action items: "Become a Supplier", vertical divider, "Investor Relations", divider, Profile icon, Cart icon with live counter badge.
 2. **Category Nav Bar & Full-Width Mega Menu**
@@ -74,7 +74,7 @@ Open your browser at:
    - Left orange panel with "Up to 35% OFF on first order", "*Only on App", white "Download Now" button, and vertical "*T&C Apply".
    - Right purple panel with 4 orange-framed portrait cards (*Trending Now, Budget Buys, Top Rated Picks, Daily Essentials*).
 9. **"Products For You" Main Listing**
-   - Sticky left sidebar with Sort dropdown (*Relevance, Price low→high, Price high→low, Rating, Discount*), Filters header, Price chip buttons (*Under ₹199, ₹249, ₹299, ₹349, ₹399, ₹449, ₹499, ₹200–₹249, etc.*), Rating radios, Discount radios, Shopverse Gold, and Shopverse Mall checkboxes.
+   - Sticky left sidebar with Sort dropdown (*Relevance, Price low→high, Price high→low, Rating, Discount*), Filters header, Price chip buttons (*Under ₹199, ₹249, ₹299, ₹349, ₹399, ₹449, ₹499, ₹200–₹249, etc.*), Rating radios, Discount radios, Eagle Gold, and Eagle Mall checkboxes.
    - 4-column product grid with 108+ products across all categories.
    - Product Card anatomy: square image, peach countdown timer chip (*ticking live*), "+N More" chip, product name, Mall badge, bold price, struck-through MRP, green discount %, delivery fee chip, green rating pill with review count, Trusted badge, and hover wishlist heart.
    - Infinite scroll loading 20 products per batch with skeleton shimmer loaders.

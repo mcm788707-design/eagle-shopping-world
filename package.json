@@ -1,12 +1,12 @@
 {
-  "name": "shopverse",
+  "name": "eagle-shopping-world",
   "version": "1.0.0",
-  "description": "Shopverse - Everyday shopping e-commerce web application",
+  "description": "Eagle Shopping World - Everyday shopping e-commerce web application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["shopverse", "ecommerce", "shopping"],
+  "keywords": ["eagle-shopping-world", "ecommerce", "shopping"],
   "author": "",
   "license": "ISC"
 }

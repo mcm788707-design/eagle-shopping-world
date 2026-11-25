@@ -1,6 +1,6 @@
 /**
  * Enterprise Contact & Resources View (contact.js)
- * Pixel-faithful, fully responsive contact page for Shopverse / Eagle Groups India.
+ * Pixel-faithful, fully responsive contact page for Eagle Shopping World / Eagle Groups India.
  */
 
 import { api } from '../api.js';
@@ -8,7 +8,7 @@ import { store } from '../store.js';
 
 export async function renderContactView(container) {
   // Update document title
-  document.title = "Contact Us · Eagle Groups India | Shopverse";
+  document.title = "Contact Us · Eagle Groups India | Eagle Shopping World";
 
   // Load Contact Data
   const data = await api.getContactData() || {};

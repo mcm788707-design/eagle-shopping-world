@@ -1,5 +1,6 @@
 /**
  * Admin Panel & Bulk Excel Import/Export Component (admin.js)
+ * Clean, robust, modular administrative dashboard for Eagle Shopping World.
  */
 
 import { api } from '../api.js';
@@ -70,12 +71,15 @@ export async function renderAdminPanel(container) {
       window.removeEventListener('paste', activePasteListener);
       activePasteListener = null;
     }
+
+    const isEdit = Boolean(editingProduct);
+
     container.innerHTML = `
       <div class="container admin-view-wrap">
         <div class="flex justify-between items-center" style="margin-bottom:20px">
           <div>
             <h1 style="font-size:28px;font-weight:900;color:var(--color-primary-dark)">Admin Dashboard</h1>
-            <p style="color:var(--color-text-muted);font-size:14px">Welcome back, ${session.name}</p>
+            <p style="color:var(--color-text-muted);font-size:14px">Welcome back, ${session.name || 'Eagle Shopping World Administrator'}</p>
           </div>
           <button class="btn btn-outline btn-sm" id="btn-admin-logout">Log Out</button>
         </div>
@@ -105,10 +109,10 @@ export async function renderAdminPanel(container) {
           <button class="admin-tab-btn ${activeTab === 'products' ? 'active' : ''}" data-tab="products">
             Products Inventory (${allProducts.length})
           </button>
-          <button class="admin-tab-btn ${activeTab === 'add' && !editingProduct ? 'active' : ''}" data-tab="add">
+          <button class="admin-tab-btn ${activeTab === 'add' && !isEdit ? 'active' : ''}" data-tab="add">
             + Add New Product
           </button>
-          ${editingProduct ? `
+          ${isEdit ? `
             <button class="admin-tab-btn ${activeTab === 'add' ? 'active' : ''}" data-tab="edit" style="color:var(--color-primary);font-weight:800;border:1px solid var(--color-primary);background:${activeTab === 'add' ? 'var(--color-primary)' : 'var(--color-primary-light)'};color:${activeTab === 'add' ? '#fff' : 'var(--color-primary)'}">
               ✏️ Edit Product (#${editingProduct.id})
             </button>
@@ -205,7 +209,6 @@ export async function renderAdminPanel(container) {
         };
       });
     } else if (activeTab === 'add') {
-      const isEdit = Boolean(editingProduct);
       const catList = [
         'Kurti, Saree & Lehenga',
         'Women Western',
@@ -490,7 +493,10 @@ export async function renderAdminPanel(container) {
       cancelHandlers.forEach(btn => {
         if (btn) {
           btn.onclick = () => {
-            window.removeEventListener('paste', pasteListener);
+            if (activePasteListener) {
+              window.removeEventListener('paste', activePasteListener);
+              activePasteListener = null;
+            }
             editingProduct = null;
             uploadedImageDataUrl = null;
             activeTab = 'products';
@@ -523,7 +529,10 @@ export async function renderAdminPanel(container) {
 
           await api.updateProduct(editingProduct.id, updates);
           store.toast(`Product #${editingProduct.id} "${updates.name}" updated successfully! 🎉`);
-          window.removeEventListener('paste', pasteListener);
+          if (activePasteListener) {
+            window.removeEventListener('paste', activePasteListener);
+            activePasteListener = null;
+          }
           editingProduct = null;
           uploadedImageDataUrl = null;
           activeTab = 'products';
@@ -548,7 +557,10 @@ export async function renderAdminPanel(container) {
 
           await api.addProduct(newP);
           store.toast('New product added successfully! 🎉');
-          window.removeEventListener('paste', pasteListener);
+          if (activePasteListener) {
+            window.removeEventListener('paste', activePasteListener);
+            activePasteListener = null;
+          }
           uploadedImageDataUrl = null;
           activeTab = 'products';
           renderAdminPanel(container);
@@ -622,7 +634,7 @@ export async function renderAdminPanel(container) {
               } else {
                 validRows.push({
                   name: String(clean.name).trim(),
-                  brand: String(clean.brand || 'Shopverse Brand').trim(),
+                  brand: String(clean.brand || 'Eagle Shopping World Brand').trim(),
                   category: String(clean.category).trim(),
                   subcategory: String(clean.subcategory || 'General').trim(),
                   price: parseFloat(clean.price) || 199,
@@ -654,7 +666,7 @@ export async function renderAdminPanel(container) {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(sample);
         XLSX.utils.book_append_sheet(wb, ws, "Products_Template");
-        XLSX.writeFile(wb, "Shopverse_Product_Import_Template.xlsx");
+        XLSX.writeFile(wb, "Eagle_Shopping_World_Product_Import_Template.xlsx");
       };
 
       document.getElementById('btn-export-prods').onclick = () => {
@@ -662,7 +674,7 @@ export async function renderAdminPanel(container) {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(allProducts);
         XLSX.utils.book_append_sheet(wb, ws, "Products");
-        XLSX.writeFile(wb, "Shopverse_Products_Catalog.xlsx");
+        XLSX.writeFile(wb, "Eagle_Shopping_World_Products_Catalog.xlsx");
       };
 
       document.getElementById('btn-export-orders').onclick = () => {
@@ -670,7 +682,7 @@ export async function renderAdminPanel(container) {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(allOrders);
         XLSX.utils.book_append_sheet(wb, ws, "Orders");
-        XLSX.writeFile(wb, "Shopverse_Orders.xlsx");
+        XLSX.writeFile(wb, "Eagle_Shopping_World_Orders.xlsx");
       };
     } else if (activeTab === 'orders') {
       tabContent.innerHTML = `
@@ -737,6 +749,10 @@ export async function renderAdminPanel(container) {
     });
 
     document.getElementById('btn-admin-logout').onclick = async () => {
+      if (activePasteListener) {
+        window.removeEventListener('paste', activePasteListener);
+        activePasteListener = null;
+      }
       await api.logout();
       store.state.user = null;
       store.toast('Logged out');

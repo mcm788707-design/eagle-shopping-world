@@ -48,7 +48,7 @@ async function bootstrap() {
       });
     }
 
-    console.log('Shopverse front-end initialized successfully.');
+    console.log('Eagle Shopping World front-end initialized successfully.');
   } catch (err) {
     console.error('Bootstrap error:', err);
   }
