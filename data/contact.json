@@ -1,0 +1,160 @@
+{
+  "hero": {
+    "title": "Contact Us",
+    "breadcrumb": "Home > Resources > Contact",
+    "directoryLabel": "Eagle Groups India · Corporate Directory",
+    "bgGradientFrom": "#1b0e1e",
+    "bgGradientTo": "#42103a"
+  },
+  "leadership": {
+    "quote": "We stand on a strong foundation of rapid growth, innovative solutions, and a clear vision for the future. Join us in building a more efficient and sustainable tomorrow.",
+    "author": "M.S. Lingam",
+    "role": "Founder & Managing Director"
+  },
+  "stats": [
+    { "value": "2018", "label": "Established", "icon": "🗓️" },
+    { "value": "4", "label": "Regional Branches", "icon": "🏢" },
+    { "value": "100+", "label": "Enterprise Clients", "icon": "🤝" },
+    { "value": "17", "label": "Cities across 9+ States", "icon": "📍" }
+  ],
+  "contactInfo": {
+    "pill": "CONTACT INFO",
+    "heading": "Contact Information",
+    "subtext": "Reach our administrative team across all key regional communication desks",
+    "cards": [
+      {
+        "id": "visit",
+        "icon": "📍",
+        "title": "Visit Us At",
+        "lines": [
+          "Headquarters: Bengaluru, Karnataka, India",
+          "Regional Hubs: Bengaluru · Hyderabad · Chennai"
+        ]
+      },
+      {
+        "id": "call",
+        "icon": "📞",
+        "title": "Call Us On",
+        "phones": [
+          { "name": "M.S. Lingam", "phone": "+91 95389 98799", "tel": "+919538998799" },
+          { "name": "Murugan", "phone": "+91 80504 29402", "tel": "+918050429402" },
+          { "name": "Vijesh", "phone": "+91 90350 69019", "tel": "+919035069019" }
+        ]
+      },
+      {
+        "id": "mail",
+        "icon": "✉️",
+        "title": "Mail Address",
+        "email": "info@eaglegroupsindia.com",
+        "website": "eaglegroupsindia.com"
+      },
+      {
+        "id": "time",
+        "icon": "⚡",
+        "title": "Response Time",
+        "sla": "SLA 24–48 Hrs",
+        "note": "Guaranteed resolution turnaround on all formal inquiries"
+      }
+    ]
+  },
+  "grievance": {
+    "cardTitle": "Queries & Grievance Redressal",
+    "sla": "SLA: 24–48 Hrs",
+    "description": "Have an urgent inquiry, grievance redressal, or service escalation? Reach out directly to our management for prioritized fast resolution.",
+    "officers": [
+      {
+        "name": "M.S. Lingam",
+        "role": "Founder | Managing Director",
+        "initials": "ML",
+        "email": "lingam@eaglegroupsindia.com",
+        "phone": "+91 95389 98799"
+      },
+      {
+        "name": "Murugan",
+        "role": "General Manager & Grievance Officer",
+        "initials": "M",
+        "email": "murugan@eaglegroupsindia.com",
+        "phone": "+91 80504 29402"
+      }
+    ]
+  },
+  "supplyChain": {
+    "pill": "COMMERCIAL RELATIONS",
+    "heading": "Supply Chain & Commercial Relations",
+    "subtext": "Direct access for supplier registrations, vendor onboarding, and procurement operations",
+    "procurement": {
+      "name": "Vijesh",
+      "role": "Supply Chain Manager",
+      "tag": "Procurement Desk",
+      "initials": "V",
+      "email": "vijesh@eaglegroupsindia.com",
+      "phone": "+91 90350 69019"
+    },
+    "corporateDesk": {
+      "title": "General Corporate Desk",
+      "email": "info@eaglegroupsindia.com",
+      "website": "eaglegroupsindia.com"
+    }
+  },
+  "registeredOffice": {
+    "companyName": "Eagle Groups India (HQ)",
+    "tagline": "Building Excellence. Delivering Trust. Growing Together.",
+    "headquarters": "Bengaluru, Karnataka, India",
+    "regionalHubs": "Bengaluru · Hyderabad · Chennai",
+    "pdfUrl": "assets/eagle-groups-profile.pdf",
+    "pdfFilename": "Eagle-Groups-Company-Profile.pdf",
+    "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d248849.8865390924!2d77.49085205!3d12.95396!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e8517e4fe0!2sBengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    "mapDirectionsUrl": "https://maps.google.com/?q=Bengaluru+Karnataka+India"
+  },
+  "divisions": [
+    {
+      "id": "enterprises",
+      "name": "Eagle Enterprises",
+      "tag": "Industrial Materials & Service Works",
+      "desc": "Reliable supply & procurement across industries, MEP supplies, Electrical, Plumbing & Hardware.",
+      "icon": "🏭",
+      "accent": "#9f2089"
+    },
+    {
+      "id": "facility",
+      "name": "Eagle Global Facility Solutions",
+      "tag": "Comprehensive Facility Management",
+      "desc": "Civil & Fabrication, Painting & POP, Toughened Glass & Mirror, Carpet Shampooing.",
+      "icon": "🛠️",
+      "accent": "#038d63"
+    },
+    {
+      "id": "vision",
+      "name": "Eagle Vision Tech",
+      "tag": "Modern IT & Digital Solutions",
+      "desc": "Specializing in Website Development, SEO, Mobile Apps, Digital Marketing, and E-commerce.",
+      "icon": "💻",
+      "accent": "#5b2bff"
+    }
+  ],
+  "presence": {
+    "pill": "NATIONWIDE REACH",
+    "heading": "Service Reach & Presence",
+    "subtext": "17 Cities · 9+ States",
+    "cities": [
+      { "name": "Bengaluru", "isHq": true },
+      { "name": "Hyderabad", "isHq": false },
+      { "name": "Chennai", "isHq": false },
+      { "name": "Delhi – NCR", "isHq": false },
+      { "name": "Mumbai", "isHq": false },
+      { "name": "Pune", "isHq": false },
+      { "name": "Coimbatore", "isHq": false },
+      { "name": "Cochin", "isHq": false },
+      { "name": "Vijayawada", "isHq": false },
+      { "name": "Mysore", "isHq": false },
+      { "name": "Bhimavaram", "isHq": false },
+      { "name": "Mangalore", "isHq": false },
+      { "name": "Pondicherry", "isHq": false },
+      { "name": "Trichy", "isHq": false },
+      { "name": "Tirunelveli", "isHq": false },
+      { "name": "Trivandrum", "isHq": false },
+      { "name": "Madurai", "isHq": false },
+      { "name": "Gujarat", "isHq": false }
+    ]
+  }
+}

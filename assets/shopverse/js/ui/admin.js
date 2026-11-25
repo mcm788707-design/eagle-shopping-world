@@ -4,26 +4,6 @@
 
 import { api } from '../api.js';
 import { store } from '../store.js';
-import { renderHeroManager } from './heroManager.js';
-
-function generateProductPlaceholder(name = 'Product', category = 'Shopverse') {
-  const safeName = String(name || 'Product').slice(0, 22).replace(/[<>&"']/g, '');
-  const safeCat = String(category || 'Shopverse').slice(0, 22).replace(/[<>&"']/g, '');
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
-    <defs>
-      <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#faf5fc"/>
-        <stop offset="100%" stop-color="#ebd8f2"/>
-      </linearGradient>
-    </defs>
-    <rect width="300" height="300" fill="url(#g)"/>
-    <circle cx="150" cy="115" r="42" fill="#9f2089" opacity="0.12"/>
-    <text x="150" y="125" font-family="sans-serif" font-size="34" text-anchor="middle" fill="#9f2089">🛍️</text>
-    <text x="150" y="190" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#570d48">${safeName}</text>
-    <text x="150" y="215" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#8b8b9a">${safeCat}</text>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-}
 
 export async function renderAdminPanel(container) {
   const session = await api.getSession();
@@ -76,15 +56,15 @@ export async function renderAdminPanel(container) {
   const productsRes = await api.getProducts({ limit: 500 });
   const allProducts = productsRes.items;
   const allOrders = await api.getOrders();
+  const allMessages = await api.getContactMessages();
+  let contactConfig = await api.getContactData();
   const totalRev = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const heroSlides = await api.getAllHeroSlides();
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
 
   let activeTab = 'products';
   let editingProduct = null;
   let uploadedImageDataUrl = null;
-  let imageWasRemoved = false;
   let activePasteListener = null;
 
   function renderView() {
@@ -113,12 +93,12 @@ export async function renderAdminPanel(container) {
             <div class="admin-stat-lbl">Total Orders</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val">₹${totalRev.toLocaleString('en-IN')}</div>
-            <div class="admin-stat-lbl">Gross Revenue</div>
+            <div class="admin-stat-val">${allMessages.length}</div>
+            <div class="admin-stat-lbl">Customer Inquiries</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val">${heroSlides.length}</div>
-            <div class="admin-stat-lbl">Hero Slides</div>
+            <div class="admin-stat-val">₹${totalRev.toLocaleString('en-IN')}</div>
+            <div class="admin-stat-lbl">Gross Revenue</div>
           </div>
         </div>
 
@@ -126,9 +106,6 @@ export async function renderAdminPanel(container) {
         <div class="admin-tabs-nav">
           <button class="admin-tab-btn ${activeTab === 'products' ? 'active' : ''}" data-tab="products">
             Products Inventory (${allProducts.length})
-          </button>
-          <button class="admin-tab-btn ${activeTab === 'hero' ? 'active' : ''}" data-tab="hero">
-            🎪 Hero Banners (${heroSlides.length})
           </button>
           <button class="admin-tab-btn ${activeTab === 'add' && !editingProduct ? 'active' : ''}" data-tab="add">
             + Add New Product
@@ -140,6 +117,8 @@ export async function renderAdminPanel(container) {
           ` : ''}
           <button class="admin-tab-btn ${activeTab === 'import' ? 'active' : ''}" data-tab="import">Excel Bulk Import / Export</button>
           <button class="admin-tab-btn ${activeTab === 'orders' ? 'active' : ''}" data-tab="orders">Customer Orders (${allOrders.length})</button>
+          <button class="admin-tab-btn ${activeTab === 'messages' ? 'active' : ''}" data-tab="messages">Customer Messages (${allMessages.length})</button>
+          <button class="admin-tab-btn ${activeTab === 'contact' ? 'active' : ''}" data-tab="contact">Contact Page Settings</button>
         </div>
 
         <!-- Tab Contents -->
@@ -209,7 +188,6 @@ export async function renderAdminPanel(container) {
           if (prod) {
             editingProduct = { ...prod };
             uploadedImageDataUrl = prod.image || null;
-            imageWasRemoved = false;
             activeTab = 'add';
             renderView();
             window.scrollTo({ top: 120, behavior: 'smooth' });
@@ -265,26 +243,6 @@ export async function renderAdminPanel(container) {
                   Cancel Edit
                 </button>
               </div>
-            ` : ''}
-          </div>
-
-          <!-- Quick Select Product to Edit -->
-          <div style="background:#fcf9fd;border:1px solid #e8daea;padding:10px 14px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="font-size:12px;font-weight:800;color:var(--color-primary);white-space:nowrap">
-              🔍 Edit Existing Product:
-            </span>
-            <select id="quick-select-edit-prod" class="form-select" style="margin:0;font-size:13px;padding:6px 12px;flex:1;min-width:200px;background:#fff">
-              <option value="">-- Choose a product to edit its photo &amp; details --</option>
-              ${allProducts.map(p => `
-                <option value="${p.id}" ${isEdit && String(editingProduct.id) === String(p.id) ? 'selected' : ''}>
-                  #${p.id} - ${esc(p.name)} (${esc(p.brand)} &bull; ₹${p.price})
-                </option>
-              `).join('')}
-            </select>
-            ${isEdit ? `
-              <button type="button" id="btn-switch-to-blank" class="btn btn-outline btn-sm" style="font-size:11px;padding:5px 10px;white-space:nowrap">
-                + New Blank Form
-              </button>
             ` : ''}
           </div>
 
@@ -424,12 +382,9 @@ export async function renderAdminPanel(container) {
         const reader = new FileReader();
         reader.onload = (ev) => {
           uploadedImageDataUrl = ev.target.result;
-          imageWasRemoved = false;
           previewImg.src = uploadedImageDataUrl;
           previewContainer.style.display = 'flex';
           statusBadge.textContent = '📸 ' + label;
-          statusBadge.style.color = 'var(--color-primary)';
-          removeBtn.style.display = 'inline-block';
           const sizeKb = Math.round(fileOrBlob.size / 1024);
           fileInfo.textContent = `${fileOrBlob.name || 'Screenshot Image'} (${sizeKb > 0 ? sizeKb + ' KB' : 'clipboard data'}) - Ready to ${isEdit ? 'update' : 'save'}!`;
           store.toast(isEdit ? 'Screenshot updated! Click "Update Product" to save. 📸' : 'Screenshot image captured & ready! 📸');
@@ -519,65 +474,21 @@ export async function renderAdminPanel(container) {
         const url = urlInput.value.trim();
         if (url) {
           uploadedImageDataUrl = url;
-          imageWasRemoved = false;
           previewImg.src = url;
           previewContainer.style.display = 'flex';
           statusBadge.textContent = '🌐 Custom URL Image';
-          statusBadge.style.color = 'var(--color-primary)';
           fileInfo.textContent = url;
-          removeBtn.style.display = 'inline-block';
-        } else {
-          uploadedImageDataUrl = null;
         }
       };
 
       removeBtn.onclick = () => {
         uploadedImageDataUrl = null;
-        imageWasRemoved = true;
-        urlInput.value = '';
+        previewContainer.style.display = 'none';
+        previewImg.src = '';
         fileInput.value = '';
-        const nameVal = document.querySelector('input[name="name"]')?.value || editingProduct?.name || 'Product';
-        const catVal = document.querySelector('select[name="category"]')?.value || editingProduct?.category || 'Item';
-        previewImg.src = generateProductPlaceholder(nameVal, catVal);
-        previewContainer.style.display = 'flex';
-        statusBadge.textContent = '🗑️ Image Removed (Placeholder will be saved)';
-        statusBadge.style.color = '#c0392b';
-        fileInfo.textContent = 'Old photo was removed. Take a screenshot (Ctrl+V) or click Update to save with placeholder.';
-        removeBtn.style.display = 'none';
-        store.toast('Photo removed. Ready for new screenshot or save.');
+        urlInput.value = '';
+        store.toast('Image removed');
       };
-
-      // Quick select an existing product to edit
-      const quickSelectProd = document.getElementById('quick-select-edit-prod');
-      if (quickSelectProd) {
-        quickSelectProd.onchange = () => {
-          const selId = quickSelectProd.value;
-          if (selId) {
-            const prod = allProducts.find(p => String(p.id) === String(selId));
-            if (prod) {
-              window.removeEventListener('paste', pasteListener);
-              editingProduct = { ...prod };
-              uploadedImageDataUrl = prod.image || null;
-              imageWasRemoved = false;
-              activeTab = 'add';
-              renderView();
-              store.toast(`Loaded "${prod.name}" for editing! ✏️`);
-            }
-          }
-        };
-      }
-
-      const switchBlankBtn = document.getElementById('btn-switch-to-blank');
-      if (switchBlankBtn) {
-        switchBlankBtn.onclick = () => {
-          window.removeEventListener('paste', pasteListener);
-          editingProduct = null;
-          uploadedImageDataUrl = null;
-          imageWasRemoved = false;
-          activeTab = 'add';
-          renderView();
-        };
-      }
 
       const cancelHandlers = [document.getElementById('btn-cancel-edit'), document.getElementById('btn-cancel-edit-top')];
       cancelHandlers.forEach(btn => {
@@ -586,7 +497,6 @@ export async function renderAdminPanel(container) {
             window.removeEventListener('paste', pasteListener);
             editingProduct = null;
             uploadedImageDataUrl = null;
-            imageWasRemoved = false;
             activeTab = 'products';
             renderView();
           };
@@ -598,71 +508,52 @@ export async function renderAdminPanel(container) {
         e.preventDefault();
         const f = new FormData(e.target);
 
-        const nameVal = f.get('name').trim();
-        const brandVal = f.get('brand').trim();
-        const catVal = f.get('category').trim();
-        const subcatVal = (f.get('subcategory') || 'General').trim();
-        const priceVal = parseFloat(f.get('price')) || 0;
-        const mrpVal = parseFloat(f.get('mrp')) || priceVal;
-        const stockVal = parseInt(f.get('stock'), 10) || 0;
-        const descVal = (f.get('description') || '').trim();
-
-        // Compute the final image to store
-        let finalImage;
-        if (uploadedImageDataUrl) {
-          finalImage = uploadedImageDataUrl;
-        } else if (urlInput.value.trim()) {
-          finalImage = urlInput.value.trim();
-        } else if (imageWasRemoved) {
-          finalImage = generateProductPlaceholder(nameVal, catVal);
-        } else if (isEdit && editingProduct.image) {
-          finalImage = editingProduct.image;
-        } else {
-          finalImage = generateProductPlaceholder(nameVal, catVal);
-        }
-
         if (isEdit) {
           const updates = {
-            name: nameVal,
-            brand: brandVal,
-            category: catVal,
-            subcategory: subcatVal,
-            price: priceVal,
-            mrp: mrpVal,
-            stock: stockVal,
-            description: descVal,
-            image: finalImage,
-            images: [finalImage]
+            name: f.get('name').trim(),
+            brand: f.get('brand').trim(),
+            category: f.get('category').trim(),
+            subcategory: (f.get('subcategory') || 'General').trim(),
+            price: parseInt(f.get('price'), 10),
+            mrp: parseInt(f.get('mrp'), 10),
+            stock: parseInt(f.get('stock'), 10),
+            description: (f.get('description') || '').trim()
           };
+
+          if (uploadedImageDataUrl) {
+            updates.image = uploadedImageDataUrl;
+            updates.images = [uploadedImageDataUrl];
+          }
 
           await api.updateProduct(editingProduct.id, updates);
           store.toast(`Product #${editingProduct.id} "${updates.name}" updated successfully! 🎉`);
           window.removeEventListener('paste', pasteListener);
           editingProduct = null;
           uploadedImageDataUrl = null;
-          imageWasRemoved = false;
           activeTab = 'products';
           renderAdminPanel(container);
         } else {
           const newP = {
-            name: nameVal,
-            brand: brandVal,
-            category: catVal,
-            subcategory: subcatVal,
-            price: priceVal,
-            mrp: mrpVal,
-            stock: stockVal,
-            description: descVal,
-            image: finalImage,
-            images: [finalImage],
+            name: f.get('name').trim(),
+            brand: f.get('brand').trim(),
+            category: f.get('category').trim(),
+            subcategory: (f.get('subcategory') || 'General').trim(),
+            price: parseInt(f.get('price'), 10),
+            mrp: parseInt(f.get('mrp'), 10),
+            stock: parseInt(f.get('stock'), 10),
+            description: (f.get('description') || '').trim(),
             mall: true
           };
 
+          if (uploadedImageDataUrl) {
+            newP.image = uploadedImageDataUrl;
+            newP.images = [uploadedImageDataUrl];
+          }
+
           await api.addProduct(newP);
-          store.toast(`New product "${newP.name}" added successfully! 🎉`);
+          store.toast('New product added successfully! 🎉');
           window.removeEventListener('paste', pasteListener);
           uploadedImageDataUrl = null;
-          imageWasRemoved = false;
           activeTab = 'products';
           renderAdminPanel(container);
         }
@@ -830,9 +721,348 @@ export async function renderAdminPanel(container) {
           store.toast('Order status updated!');
         };
       });
-    } else if (activeTab === 'hero') {
-      tabContent.innerHTML = `<div id="admin-hero-mount"></div>`;
-      renderHeroManager(document.getElementById('admin-hero-mount'));
+    } else if (activeTab === 'messages') {
+      tabContent.innerHTML = `
+        <div class="checkout-box" style="max-width:100%">
+          <div class="flex justify-between items-center" style="margin-bottom:16px;flex-wrap:wrap;gap:12px">
+            <div>
+              <h3 style="font-size:22px;font-weight:900;color:var(--color-primary-dark)">
+                Customer Inquiries &amp; Messages (${allMessages.length})
+              </h3>
+              <p style="color:var(--color-text-muted);font-size:13px;margin:3px 0 0">
+                Inquiries submitted via the Contact Us form (#/contact). Saved in isolated data layer.
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" id="btn-export-messages" style="font-weight:700">
+                📤 Export to Excel (.xlsx)
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Ref ID</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th>Subject</th>
+                  <th>Message Preview</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${!allMessages.length ? `<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--color-text-muted)">No customer inquiries yet. Submit an inquiry through the Contact page (#/contact) to test!</td></tr>` : allMessages.map(m => `
+                  <tr data-id="${m.id}">
+                    <td><b>${esc(m.id)}</b></td>
+                    <td><small style="color:var(--color-text-muted)">${new Date(m.date).toLocaleDateString('en-IN')}<br>${new Date(m.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</small></td>
+                    <td><b>${esc(m.name)}</b></td>
+                    <td>
+                      <a href="mailto:${esc(m.email)}" style="color:var(--color-primary);text-decoration:none;font-weight:600">${esc(m.email)}</a><br>
+                      <a href="tel:${esc(m.phone)}" style="color:var(--color-text-muted);font-size:12px">${esc(m.phone)}</a>
+                    </td>
+                    <td><span style="background:var(--color-primary-light);color:var(--color-primary);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:800">${esc(m.subject)}</span></td>
+                    <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.message)}</td>
+                    <td>
+                      <select class="msg-status-select" data-id="${m.id}" style="border:1px solid #d4d5d9;border-radius:4px;padding:4px 8px;font-size:12px;font-weight:700">
+                        ${['New', 'In progress', 'Resolved'].map(st => `
+                          <option value="${st}" ${m.status === st ? 'selected' : ''}>${st}</option>
+                        `).join('')}
+                      </select>
+                    </td>
+                    <td style="white-space:nowrap">
+                      <button class="btn btn-outline btn-sm btn-view-msg" data-id="${m.id}" style="font-size:12px;padding:4px 8px;margin-right:4px">
+                        👁️ View
+                      </button>
+                      <button class="btn btn-outline btn-sm btn-del-msg" data-id="${m.id}" style="color:#c0392b;border-color:#f5c6cb;font-size:12px;padding:4px 8px">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- View Message Modal Dialog -->
+        <div id="msg-detail-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;padding:20px">
+          <div style="background:#ffffff;border-radius:12px;max-width:540px;width:100%;padding:28px;box-shadow:0 12px 36px rgba(0,0,0,0.2)">
+            <div class="flex justify-between items-center" style="margin-bottom:16px;border-bottom:1px solid #eee;padding-bottom:10px">
+              <h3 style="font-size:18px;font-weight:800;color:var(--color-primary-dark)" id="modal-msg-title">Message Details</h3>
+              <button type="button" id="btn-close-msg-modal" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888">&times;</button>
+            </div>
+            <div id="modal-msg-body" style="font-size:14px;line-height:1.6;color:#333"></div>
+            <div style="margin-top:20px;text-align:right">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-modal-close-action">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Status change
+      tabContent.querySelectorAll('.msg-status-select').forEach(sel => {
+        sel.onchange = async () => {
+          const id = sel.dataset.id;
+          await api.updateContactMessageStatus(id, sel.value);
+          store.toast(`Message #${id} marked as "${sel.value}"`);
+        };
+      });
+
+      // View message
+      const modal = document.getElementById('msg-detail-modal');
+      const modalTitle = document.getElementById('modal-msg-title');
+      const modalBody = document.getElementById('modal-msg-body');
+      const closeModal = () => { if (modal) modal.style.display = 'none'; };
+      document.getElementById('btn-close-msg-modal').onclick = closeModal;
+      document.getElementById('btn-modal-close-action').onclick = closeModal;
+
+      tabContent.querySelectorAll('.btn-view-msg').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.id;
+          const msg = allMessages.find(m => String(m.id) === String(id));
+          if (!msg) return;
+          modalTitle.textContent = `Inquiry ${msg.id} - ${msg.subject}`;
+          modalBody.innerHTML = `
+            <div style="margin-bottom:12px">
+              <b>From:</b> ${esc(msg.name)} &lt;<a href="mailto:${esc(msg.email)}">${esc(msg.email)}</a>&gt;<br>
+              <b>Phone:</b> <a href="tel:${esc(msg.phone)}">${esc(msg.phone)}</a><br>
+              <b>Date:</b> ${new Date(msg.date).toLocaleString('en-IN')}<br>
+              <b>Status:</b> <span style="font-weight:700;color:var(--color-primary)">${esc(msg.status)}</span>
+            </div>
+            <div style="background:#f9f9fb;border:1px solid #e5e5ea;border-radius:8px;padding:14px;white-space:pre-wrap;font-size:13px">
+              ${esc(msg.message)}
+            </div>
+          `;
+          modal.style.display = 'flex';
+        };
+      });
+
+      // Delete message
+      tabContent.querySelectorAll('.btn-del-msg').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          if (confirm(`Delete message #${id}?`)) {
+            await api.deleteContactMessage(id);
+            store.toast('Message deleted.');
+            renderAdminPanel(container);
+          }
+        };
+      });
+
+      // Export to Excel
+      document.getElementById('btn-export-messages').onclick = () => {
+        if (typeof XLSX === 'undefined') return store.toast('SheetJS library is still loading.');
+        const wb = XLSX.utils.book_new();
+        const exportData = allMessages.map(m => ({
+          Reference_ID: m.id,
+          Date: new Date(m.date).toLocaleString('en-IN'),
+          Name: m.name,
+          Email: m.email,
+          Phone: m.phone,
+          Subject: m.subject,
+          Status: m.status,
+          Message: m.message
+        }));
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        XLSX.utils.book_append_sheet(wb, ws, "Messages");
+        XLSX.writeFile(wb, "Shopverse_Customer_Messages.xlsx");
+        store.toast('Exported customer messages to Excel! 📄');
+      };
+    } else if (activeTab === 'contact') {
+      const cfg = contactConfig || {};
+      tabContent.innerHTML = `
+        <div class="checkout-box" style="max-width:840px">
+          <div class="flex justify-between items-center" style="margin-bottom:16px;border-bottom:1px solid #f0f0f4;padding-bottom:12px;flex-wrap:wrap;gap:12px">
+            <div>
+              <h3 style="font-size:22px;font-weight:900;color:var(--color-primary-dark)">
+                Contact Page Configuration
+              </h3>
+              <p style="color:var(--color-text-muted);font-size:13px;margin:3px 0 0">
+                Customize titles, leadership quote, team contacts, pan-India cities, and Google Map.
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <a href="#/contact" target="_blank" class="btn btn-outline btn-sm" style="font-size:12px">
+                👁️ Preview Live Page (#/contact)
+              </a>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-reset-contact" style="color:#c0392b;border-color:#f5c6cb;font-size:12px">
+                ↺ Reset to Defaults
+              </button>
+            </div>
+          </div>
+
+          <form id="form-contact-editor">
+            <!-- Hero Section Settings -->
+            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:16px 0 8px">1. Hero Banner</h4>
+            <div class="flex gap-4">
+              <div style="flex:1">
+                <label class="form-label">Hero Title</label>
+                <input class="form-input" name="hero_title" value="${esc(cfg.hero?.title || 'Contact Us')}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Breadcrumb</label>
+                <input class="form-input" name="hero_breadcrumb" value="${esc(cfg.hero?.breadcrumb || 'Home / Contact Us')}">
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div style="flex:1">
+                <label class="form-label">Hero BG Gradient Start</label>
+                <input class="form-input" name="hero_bg_start" value="${esc(cfg.hero?.bgGradientFrom || '#28122c')}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Hero BG Gradient End</label>
+                <input class="form-input" name="hero_bg_end" value="${esc(cfg.hero?.bgGradientTo || '#4a1240')}">
+              </div>
+            </div>
+
+            <!-- Leadership Quote -->
+            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">2. Leadership Message</h4>
+            <label class="form-label">Founder Quote</label>
+            <textarea class="form-textarea" name="lead_quote" rows="2">${esc(cfg.leadership?.quote || '')}</textarea>
+            <div class="flex gap-4">
+              <div style="flex:1">
+                <label class="form-label">Author Name</label>
+                <input class="form-input" name="lead_author" value="${esc(cfg.leadership?.author || 'M.S. Lingam')}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Author Role</label>
+                <input class="form-input" name="lead_role" value="${esc(cfg.leadership?.role || 'Founder & Managing Director')}">
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">3. Animated Count-Up Stats</h4>
+            <div class="flex gap-3">
+              <div style="flex:1">
+                <label class="form-label">Established Year</label>
+                <input type="number" class="form-input" name="stat_0_val" value="${cfg.stats?.[0]?.value || 2018}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Regional Branches</label>
+                <input type="number" class="form-input" name="stat_1_val" value="${cfg.stats?.[1]?.value || 4}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Enterprise Clients</label>
+                <input type="number" class="form-input" name="stat_2_val" value="${cfg.stats?.[2]?.value || 100}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Cities Count</label>
+                <input type="number" class="form-input" name="stat_3_val" value="${cfg.stats?.[3]?.value || 17}">
+              </div>
+            </div>
+
+            <!-- Live Chat & Corporate Office -->
+            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">4. Live Chat &amp; Headquarters</h4>
+            <div class="flex gap-4">
+              <div style="flex:1">
+                <label class="form-label">WhatsApp Chat Link</label>
+                <input class="form-input" name="livechat_url" value="${esc(cfg.liveChat?.whatsappUrl || 'https://wa.me/919538998799')}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Corporate Email</label>
+                <input class="form-input" name="corp_email" value="${esc(cfg.grievance?.corporateDeskEmail || 'info@eaglegroupsindia.com')}">
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div style="flex:1">
+                <label class="form-label">Headquarters Address</label>
+                <input class="form-input" name="reg_hq" value="${esc(cfg.registeredOffice?.headquarters || 'Bengaluru, Karnataka, India')}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Regional Hubs</label>
+                <input class="form-input" name="reg_hubs" value="${esc(cfg.registeredOffice?.regionalHubs || 'Bengaluru · Hyderabad · Chennai')}">
+              </div>
+            </div>
+
+            <!-- Google Map -->
+            <h4 style="font-size:16px;font-weight:800;color:var(--color-primary);margin:24px 0 8px">5. Google Map Location</h4>
+            <div class="flex gap-4">
+              <div style="flex:1">
+                <label class="form-label">Map Address</label>
+                <input class="form-input" name="map_address" value="${esc(cfg.map?.address || 'Bengaluru, Karnataka 560103, India')}">
+              </div>
+              <div style="flex:1">
+                <label class="form-label">Map Directions Link</label>
+                <input class="form-input" name="map_directions" value="${esc(cfg.map?.directionsUrl || 'https://maps.google.com/?q=Bengaluru+Karnataka+India')}">
+              </div>
+            </div>
+            <label class="form-label">Google Map Embed Iframe URL</label>
+            <input class="form-input" name="map_embed" value="${esc(cfg.map?.embedUrl || '')}">
+
+            <div class="flex gap-3 items-center" style="margin-top:24px">
+              <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:15px;font-weight:800">
+                💾 Save Contact Page Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      // Save Contact Changes
+      document.getElementById('form-contact-editor').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+
+        const updated = {
+          ...cfg,
+          hero: {
+            ...cfg.hero,
+            title: f.get('hero_title').trim(),
+            breadcrumb: f.get('hero_breadcrumb').trim(),
+            bgGradientFrom: f.get('hero_bg_start').trim(),
+            bgGradientTo: f.get('hero_bg_end').trim()
+          },
+          leadership: {
+            ...cfg.leadership,
+            quote: f.get('lead_quote').trim(),
+            author: f.get('lead_author').trim(),
+            role: f.get('lead_role').trim()
+          },
+          stats: [
+            { value: parseInt(f.get('stat_0_val'), 10) || 2018, suffix: "", label: "Established" },
+            { value: parseInt(f.get('stat_1_val'), 10) || 4, suffix: "", label: "Regional Branches" },
+            { value: parseInt(f.get('stat_2_val'), 10) || 100, suffix: "+", label: "Enterprise Clients" },
+            { value: parseInt(f.get('stat_3_val'), 10) || 17, suffix: "", label: "Cities across 9+ States" }
+          ],
+          liveChat: {
+            ...cfg.liveChat,
+            whatsappUrl: f.get('livechat_url').trim()
+          },
+          grievance: {
+            ...cfg.grievance,
+            corporateDeskEmail: f.get('corp_email').trim()
+          },
+          registeredOffice: {
+            ...cfg.registeredOffice,
+            headquarters: f.get('reg_hq').trim(),
+            regionalHubs: f.get('reg_hubs').trim()
+          },
+          map: {
+            ...cfg.map,
+            address: f.get('map_address').trim(),
+            directionsUrl: f.get('map_directions').trim(),
+            embedUrl: f.get('map_embed').trim()
+          }
+        };
+
+        await api.updateContactData(updated);
+        contactConfig = updated;
+        store.toast('Contact Page Configuration Saved! 🎉');
+        renderAdminPanel(container);
+      };
+
+      // Reset to Defaults
+      document.getElementById('btn-reset-contact').onclick = async () => {
+        if (confirm('Reset contact page data to default values?')) {
+          contactConfig = await api.resetContactData();
+          store.toast('Contact data reset to defaults.');
+          renderAdminPanel(container);
+        }
+      };
     }
 
     // Tab buttons

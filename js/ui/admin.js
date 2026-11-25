@@ -4,26 +4,6 @@
 
 import { api } from '../api.js';
 import { store } from '../store.js';
-import { renderHeroManager } from './heroManager.js';
-
-function generateProductPlaceholder(name = 'Product', category = 'Shopverse') {
-  const safeName = String(name || 'Product').slice(0, 22).replace(/[<>&"']/g, '');
-  const safeCat = String(category || 'Shopverse').slice(0, 22).replace(/[<>&"']/g, '');
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
-    <defs>
-      <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#faf5fc"/>
-        <stop offset="100%" stop-color="#ebd8f2"/>
-      </linearGradient>
-    </defs>
-    <rect width="300" height="300" fill="url(#g)"/>
-    <circle cx="150" cy="115" r="42" fill="#9f2089" opacity="0.12"/>
-    <text x="150" y="125" font-family="sans-serif" font-size="34" text-anchor="middle" fill="#9f2089">🛍️</text>
-    <text x="150" y="190" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#570d48">${safeName}</text>
-    <text x="150" y="215" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#8b8b9a">${safeCat}</text>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-}
 
 export async function renderAdminPanel(container) {
   const session = await api.getSession();
@@ -77,14 +57,12 @@ export async function renderAdminPanel(container) {
   const allProducts = productsRes.items;
   const allOrders = await api.getOrders();
   const totalRev = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const heroSlides = await api.getAllHeroSlides();
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
 
   let activeTab = 'products';
   let editingProduct = null;
   let uploadedImageDataUrl = null;
-  let imageWasRemoved = false;
   let activePasteListener = null;
 
   function renderView() {
@@ -117,8 +95,8 @@ export async function renderAdminPanel(container) {
             <div class="admin-stat-lbl">Gross Revenue</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val">${heroSlides.length}</div>
-            <div class="admin-stat-lbl">Hero Slides</div>
+            <div class="admin-stat-val">100+</div>
+            <div class="admin-stat-lbl">Enterprise Clients</div>
           </div>
         </div>
 
@@ -126,9 +104,6 @@ export async function renderAdminPanel(container) {
         <div class="admin-tabs-nav">
           <button class="admin-tab-btn ${activeTab === 'products' ? 'active' : ''}" data-tab="products">
             Products Inventory (${allProducts.length})
-          </button>
-          <button class="admin-tab-btn ${activeTab === 'hero' ? 'active' : ''}" data-tab="hero">
-            🎪 Hero Banners (${heroSlides.length})
           </button>
           <button class="admin-tab-btn ${activeTab === 'add' && !editingProduct ? 'active' : ''}" data-tab="add">
             + Add New Product
@@ -209,7 +184,6 @@ export async function renderAdminPanel(container) {
           if (prod) {
             editingProduct = { ...prod };
             uploadedImageDataUrl = prod.image || null;
-            imageWasRemoved = false;
             activeTab = 'add';
             renderView();
             window.scrollTo({ top: 120, behavior: 'smooth' });
@@ -265,26 +239,6 @@ export async function renderAdminPanel(container) {
                   Cancel Edit
                 </button>
               </div>
-            ` : ''}
-          </div>
-
-          <!-- Quick Select Product to Edit -->
-          <div style="background:#fcf9fd;border:1px solid #e8daea;padding:10px 14px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="font-size:12px;font-weight:800;color:var(--color-primary);white-space:nowrap">
-              🔍 Edit Existing Product:
-            </span>
-            <select id="quick-select-edit-prod" class="form-select" style="margin:0;font-size:13px;padding:6px 12px;flex:1;min-width:200px;background:#fff">
-              <option value="">-- Choose a product to edit its photo &amp; details --</option>
-              ${allProducts.map(p => `
-                <option value="${p.id}" ${isEdit && String(editingProduct.id) === String(p.id) ? 'selected' : ''}>
-                  #${p.id} - ${esc(p.name)} (${esc(p.brand)} &bull; ₹${p.price})
-                </option>
-              `).join('')}
-            </select>
-            ${isEdit ? `
-              <button type="button" id="btn-switch-to-blank" class="btn btn-outline btn-sm" style="font-size:11px;padding:5px 10px;white-space:nowrap">
-                + New Blank Form
-              </button>
             ` : ''}
           </div>
 
@@ -424,12 +378,9 @@ export async function renderAdminPanel(container) {
         const reader = new FileReader();
         reader.onload = (ev) => {
           uploadedImageDataUrl = ev.target.result;
-          imageWasRemoved = false;
           previewImg.src = uploadedImageDataUrl;
           previewContainer.style.display = 'flex';
           statusBadge.textContent = '📸 ' + label;
-          statusBadge.style.color = 'var(--color-primary)';
-          removeBtn.style.display = 'inline-block';
           const sizeKb = Math.round(fileOrBlob.size / 1024);
           fileInfo.textContent = `${fileOrBlob.name || 'Screenshot Image'} (${sizeKb > 0 ? sizeKb + ' KB' : 'clipboard data'}) - Ready to ${isEdit ? 'update' : 'save'}!`;
           store.toast(isEdit ? 'Screenshot updated! Click "Update Product" to save. 📸' : 'Screenshot image captured & ready! 📸');
@@ -519,65 +470,21 @@ export async function renderAdminPanel(container) {
         const url = urlInput.value.trim();
         if (url) {
           uploadedImageDataUrl = url;
-          imageWasRemoved = false;
           previewImg.src = url;
           previewContainer.style.display = 'flex';
           statusBadge.textContent = '🌐 Custom URL Image';
-          statusBadge.style.color = 'var(--color-primary)';
           fileInfo.textContent = url;
-          removeBtn.style.display = 'inline-block';
-        } else {
-          uploadedImageDataUrl = null;
         }
       };
 
       removeBtn.onclick = () => {
         uploadedImageDataUrl = null;
-        imageWasRemoved = true;
-        urlInput.value = '';
+        previewContainer.style.display = 'none';
+        previewImg.src = '';
         fileInput.value = '';
-        const nameVal = document.querySelector('input[name="name"]')?.value || editingProduct?.name || 'Product';
-        const catVal = document.querySelector('select[name="category"]')?.value || editingProduct?.category || 'Item';
-        previewImg.src = generateProductPlaceholder(nameVal, catVal);
-        previewContainer.style.display = 'flex';
-        statusBadge.textContent = '🗑️ Image Removed (Placeholder will be saved)';
-        statusBadge.style.color = '#c0392b';
-        fileInfo.textContent = 'Old photo was removed. Take a screenshot (Ctrl+V) or click Update to save with placeholder.';
-        removeBtn.style.display = 'none';
-        store.toast('Photo removed. Ready for new screenshot or save.');
+        urlInput.value = '';
+        store.toast('Image removed');
       };
-
-      // Quick select an existing product to edit
-      const quickSelectProd = document.getElementById('quick-select-edit-prod');
-      if (quickSelectProd) {
-        quickSelectProd.onchange = () => {
-          const selId = quickSelectProd.value;
-          if (selId) {
-            const prod = allProducts.find(p => String(p.id) === String(selId));
-            if (prod) {
-              window.removeEventListener('paste', pasteListener);
-              editingProduct = { ...prod };
-              uploadedImageDataUrl = prod.image || null;
-              imageWasRemoved = false;
-              activeTab = 'add';
-              renderView();
-              store.toast(`Loaded "${prod.name}" for editing! ✏️`);
-            }
-          }
-        };
-      }
-
-      const switchBlankBtn = document.getElementById('btn-switch-to-blank');
-      if (switchBlankBtn) {
-        switchBlankBtn.onclick = () => {
-          window.removeEventListener('paste', pasteListener);
-          editingProduct = null;
-          uploadedImageDataUrl = null;
-          imageWasRemoved = false;
-          activeTab = 'add';
-          renderView();
-        };
-      }
 
       const cancelHandlers = [document.getElementById('btn-cancel-edit'), document.getElementById('btn-cancel-edit-top')];
       cancelHandlers.forEach(btn => {
@@ -586,7 +493,6 @@ export async function renderAdminPanel(container) {
             window.removeEventListener('paste', pasteListener);
             editingProduct = null;
             uploadedImageDataUrl = null;
-            imageWasRemoved = false;
             activeTab = 'products';
             renderView();
           };
@@ -598,71 +504,52 @@ export async function renderAdminPanel(container) {
         e.preventDefault();
         const f = new FormData(e.target);
 
-        const nameVal = f.get('name').trim();
-        const brandVal = f.get('brand').trim();
-        const catVal = f.get('category').trim();
-        const subcatVal = (f.get('subcategory') || 'General').trim();
-        const priceVal = parseFloat(f.get('price')) || 0;
-        const mrpVal = parseFloat(f.get('mrp')) || priceVal;
-        const stockVal = parseInt(f.get('stock'), 10) || 0;
-        const descVal = (f.get('description') || '').trim();
-
-        // Compute the final image to store
-        let finalImage;
-        if (uploadedImageDataUrl) {
-          finalImage = uploadedImageDataUrl;
-        } else if (urlInput.value.trim()) {
-          finalImage = urlInput.value.trim();
-        } else if (imageWasRemoved) {
-          finalImage = generateProductPlaceholder(nameVal, catVal);
-        } else if (isEdit && editingProduct.image) {
-          finalImage = editingProduct.image;
-        } else {
-          finalImage = generateProductPlaceholder(nameVal, catVal);
-        }
-
         if (isEdit) {
           const updates = {
-            name: nameVal,
-            brand: brandVal,
-            category: catVal,
-            subcategory: subcatVal,
-            price: priceVal,
-            mrp: mrpVal,
-            stock: stockVal,
-            description: descVal,
-            image: finalImage,
-            images: [finalImage]
+            name: f.get('name').trim(),
+            brand: f.get('brand').trim(),
+            category: f.get('category').trim(),
+            subcategory: (f.get('subcategory') || 'General').trim(),
+            price: parseInt(f.get('price'), 10),
+            mrp: parseInt(f.get('mrp'), 10),
+            stock: parseInt(f.get('stock'), 10),
+            description: (f.get('description') || '').trim()
           };
+
+          if (uploadedImageDataUrl) {
+            updates.image = uploadedImageDataUrl;
+            updates.images = [uploadedImageDataUrl];
+          }
 
           await api.updateProduct(editingProduct.id, updates);
           store.toast(`Product #${editingProduct.id} "${updates.name}" updated successfully! 🎉`);
           window.removeEventListener('paste', pasteListener);
           editingProduct = null;
           uploadedImageDataUrl = null;
-          imageWasRemoved = false;
           activeTab = 'products';
           renderAdminPanel(container);
         } else {
           const newP = {
-            name: nameVal,
-            brand: brandVal,
-            category: catVal,
-            subcategory: subcatVal,
-            price: priceVal,
-            mrp: mrpVal,
-            stock: stockVal,
-            description: descVal,
-            image: finalImage,
-            images: [finalImage],
+            name: f.get('name').trim(),
+            brand: f.get('brand').trim(),
+            category: f.get('category').trim(),
+            subcategory: (f.get('subcategory') || 'General').trim(),
+            price: parseInt(f.get('price'), 10),
+            mrp: parseInt(f.get('mrp'), 10),
+            stock: parseInt(f.get('stock'), 10),
+            description: (f.get('description') || '').trim(),
             mall: true
           };
 
+          if (uploadedImageDataUrl) {
+            newP.image = uploadedImageDataUrl;
+            newP.images = [uploadedImageDataUrl];
+          }
+
           await api.addProduct(newP);
-          store.toast(`New product "${newP.name}" added successfully! 🎉`);
+          store.toast('New product added successfully! 🎉');
           window.removeEventListener('paste', pasteListener);
           uploadedImageDataUrl = null;
-          imageWasRemoved = false;
           activeTab = 'products';
           renderAdminPanel(container);
         }
@@ -830,9 +717,6 @@ export async function renderAdminPanel(container) {
           store.toast('Order status updated!');
         };
       });
-    } else if (activeTab === 'hero') {
-      tabContent.innerHTML = `<div id="admin-hero-mount"></div>`;
-      renderHeroManager(document.getElementById('admin-hero-mount'));
     }
 
     // Tab buttons

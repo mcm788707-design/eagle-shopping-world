@@ -14,7 +14,9 @@ const STORAGE_KEYS = {
   SESSION: 'sv_session_v2',
   ATTEMPTS: 'sv_login_attempts_v2',
   HERO_SLIDES: 'sv_hero_slides_v1',
-  HERO_SETTINGS: 'sv_hero_settings_v1'
+  HERO_SETTINGS: 'sv_hero_settings_v1',
+  CONTACT_DATA: 'sv_contact_data_v1',
+  CONTACT_MESSAGES: 'sv_contact_messages_v1'
 };
 
 const getStorage = (key, fallback = []) => {
@@ -426,7 +428,7 @@ export const api = {
   async login(email, password) {
     const em = email.toLowerCase().trim();
     const attempts = getStorage(STORAGE_KEYS.ATTEMPTS, {});
-    
+
     // Check lockout: 5 attempts within 5 minutes
     if (attempts[em] && attempts[em].count >= 5 && (Date.now() - attempts[em].lastAttempt) < 300000) {
       throw new Error('Too many failed attempts. Account locked for 5 minutes.');
@@ -855,5 +857,43 @@ export const api = {
     }
 
     return { importedCount: cleanSlides.length, settingsUpdated: Boolean(settings) };
+  },
+
+  // Contact Page Data & Inquiries
+  async getContactData() {
+    let data = getStorage(STORAGE_KEYS.CONTACT_DATA, null);
+    if (!data) {
+      try {
+        const res = await fetch('data/contact.json');
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (err) {
+        console.warn('Failed to fetch data/contact.json:', err);
+      }
+    }
+    return data;
+  },
+
+  async submitContactMessage(msg) {
+    const list = getStorage(STORAGE_KEYS.CONTACT_MESSAGES, []);
+    const refId = 'EG-' + Math.floor(10000 + Math.random() * 90000);
+    const newMsg = {
+      id: refId,
+      date: new Date().toISOString(),
+      name: String(msg.name || '').trim(),
+      email: String(msg.email || '').trim().toLowerCase(),
+      phone: String(msg.phone || '').trim(),
+      subject: String(msg.subject || 'General Inquiry').trim(),
+      message: String(msg.message || '').trim(),
+      status: 'Received'
+    };
+    list.unshift(newMsg);
+    setStorage(STORAGE_KEYS.CONTACT_MESSAGES, list);
+    return newMsg;
+  },
+
+  async getContactMessages() {
+    return getStorage(STORAGE_KEYS.CONTACT_MESSAGES, []);
   }
 };
