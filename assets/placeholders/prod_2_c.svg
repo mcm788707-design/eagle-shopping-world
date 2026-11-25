@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e2ece9"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g)"/>
+  <circle cx="200" cy="168" r="112.00000000000001" fill="#ffffff" opacity="0.5" filter="url(#shadow)"/>
+  <text x="50%" y="192" font-family="system-ui, -apple-system, sans-serif" font-size="112" text-anchor="middle" dominant-baseline="middle">✨</text>
+  <text x="50%" y="328" font-family="'Mukta', system-ui, sans-serif" font-size="26" font-weight="700" fill="#353543" text-anchor="middle">Nat Habit Quality Tested</text>
+  <text x="50%" y="364" font-family="'Mukta', system-ui, sans-serif" font-size="19" font-weight="500" fill="#8b8b9a" text-anchor="middle">Shopverse Verified</text>
+</svg>

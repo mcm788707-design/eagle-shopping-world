@@ -1,0 +1,200 @@
+[
+  {
+    "slug": "popular",
+    "name": "Popular",
+    "columns": [
+      {
+        "title": "Top Deals",
+        "items": ["Super Savers", "Trending Kurtis", "Best Sellers", "Under ₹199 Store", "Clearance Sale", "Gift Combos"]
+      },
+      {
+        "title": "Festive Picks",
+        "items": ["Silk Sarees", "Embroidered Lehengas", "Festive Kurtas", "Jewellery Combos", "Puja Articles", "Anarkali Sets"]
+      },
+      {
+        "title": "Everyday Essentials",
+        "items": ["Daily Cotton Tops", "Kitchen Tools", "Casual Footwear", "Lipsticks & Kajal", "Men Tees", "Bath & Body"]
+      }
+    ]
+  },
+  {
+    "slug": "kurti-saree-lehenga",
+    "name": "Kurti, Saree & Lehenga",
+    "columns": [
+      {
+        "title": "All Ethnic Wear",
+        "items": ["Sarees", "Silk Sarees", "Cotton Sarees", "Georgette Sarees", "Chiffon Sarees", "Satin Sarees", "Printed Sarees"]
+      },
+      {
+        "title": "Kurtis & Suits",
+        "items": ["Anarkali Kurtis", "Straight Kurtis", "Kurti Sets", "Palazzo Sets", "Sharara Sets", "Dupattas", "Woolen Kurtis"]
+      },
+      {
+        "title": "Lehengas & Blouses",
+        "items": ["Bridal Lehengas", "Semi-Stitched Lehengas", "Stitched Blouses", "Readymade Petticoats", "Ethnic Gowns", "Chaniya Cholis"]
+      }
+    ]
+  },
+  {
+    "slug": "women-western",
+    "name": "Women Western",
+    "columns": [
+      {
+        "title": "Topwear",
+        "items": ["Dresses", "T-Shirts", "Tops & Tunics", "Shirts", "Jumpsuits", "Crop Tops", "Shrugs"]
+      },
+      {
+        "title": "Bottomwear",
+        "items": ["Jeans", "Jeggings", "Trousers & Pants", "Palazzos", "Skirts", "Shorts", "Cargo Pants"]
+      },
+      {
+        "title": "Winterwear & Sleepwear",
+        "items": ["Sweaters & Cardigans", "Jackets & Coats", "Nightdresses", "Nightsuits", "Loungewear", "Bathrobes"]
+      }
+    ]
+  },
+  {
+    "slug": "lingerie",
+    "name": "Lingerie",
+    "columns": [
+      {
+        "title": "Bras",
+        "items": ["T-Shirt Bras", "Padded Bras", "Non-Padded Bras", "Sports Bras", "Strapless Bras", "Push-Up Bras", "Bralettes"]
+      },
+      {
+        "title": "Briefs & Panties",
+        "items": ["Cotton Panties", "Hipsters", "Seamless Briefs", "Bikini Panties", "Boy Shorts", "Multipacks", "Period Panties"]
+      },
+      {
+        "title": "Shapewear & Sleepwear",
+        "items": ["Saree Shapewear", "Tummy Tuckers", "Body Suits", "Babydoll Nighties", "Camisoles & Slips", "Thermal Sets"]
+      }
+    ]
+  },
+  {
+    "slug": "men",
+    "name": "Men",
+    "columns": [
+      {
+        "title": "Topwear",
+        "items": ["T-Shirts", "Casual Shirts", "Formal Shirts", "Polos", "Hoodies & Sweatshirts", "Denim Jackets", "Sweaters"]
+      },
+      {
+        "title": "Bottomwear",
+        "items": ["Jeans", "Casual Trousers", "Formal Trousers", "Track Pants", "Cargo Pants", "Shorts", "Joggers"]
+      },
+      {
+        "title": "Ethnic & Accessories",
+        "items": ["Kurta Sets", "Nehru Jackets", "Men Watches", "Wallets", "Leather Belts", "Sunglasses", "Men Perfumes"]
+      }
+    ]
+  },
+  {
+    "slug": "kids-toys",
+    "name": "Kids & Toys",
+    "columns": [
+      {
+        "title": "Boys Clothing",
+        "items": ["T-Shirt & Shorts Sets", "Casual Shirts", "Jeans & Trousers", "Ethnic Kurta Sets", "Winter Sweaters", "Nightwear"]
+      },
+      {
+        "title": "Girls Clothing",
+        "items": ["Frocks & Dresses", "Top & Skirt Sets", "Kurti Sets", "Lehenga Cholis", "Dungarees", "Leggings"]
+      },
+      {
+        "title": "Baby & Toys",
+        "items": ["Soft Toys", "Educational Toys", "Baby Rompers", "Board Games", "Action Figures", "School Bags & Stationery"]
+      }
+    ]
+  },
+  {
+    "slug": "home-kitchen",
+    "name": "Home & Kitchen",
+    "columns": [
+      {
+        "title": "Kitchen & Dining",
+        "items": ["Cookware Sets", "Cutlery", "Storage & Containers", "Kitchen Tools & Gadgets", "Dinnerware", "Bottles & Flasks"]
+      },
+      {
+        "title": "Home Furnishing",
+        "items": ["Cotton Bedsheets", "Curtains", "Cushion Covers", "Blankets & Comforters", "Bath Towels", "Door Mats"]
+      },
+      {
+        "title": "Home Decor",
+        "items": ["Wall Clocks", "Wall Paintings", "Table Lamps", "Showpieces", "Artificial Plants & Flowers", "Pooja Articles"]
+      }
+    ]
+  },
+  {
+    "slug": "beauty-health",
+    "name": "Beauty & Health",
+    "columns": [
+      {
+        "title": "Skincare",
+        "items": ["Face Wash", "Moisturisers & Creams", "Face Serums", "Sunscreens", "Face Packs & Masks", "Body Lotions", "Face Scrubs"]
+      },
+      {
+        "title": "Makeup",
+        "items": ["Lipsticks & Glosses", "Eyeliners & Kajal", "Foundations", "Mascaras", "Compact Powders", "Nail Enamel", "Makeup Brushes"]
+      },
+      {
+        "title": "Haircare & Fragrance",
+        "items": ["Shampoos", "Hair Conditioners", "Hair Oils", "Hair Serums", "Deodorants", "Luxury Perfumes", "Hair Removal Creams"]
+      }
+    ]
+  },
+  {
+    "slug": "jewellery-accessories",
+    "name": "Jewellery & Accessories",
+    "columns": [
+      {
+        "title": "Jewellery",
+        "items": ["All Jewellery", "Jewellery Sets", "Earrings & Studs", "Mangalsutras", "Necklaces & Chains", "Bangles & Bracelets", "Anklets & Nosepins", "Kamarbandh & Maangtika"]
+      },
+      {
+        "title": "Men Accessories",
+        "items": ["All Accessories", "Men Watches", "Wallets", "Men Jewellery", "Sunglasses & Spectacle Frames", "Leather Belts", "Cufflinks"]
+      },
+      {
+        "title": "Women Accessories",
+        "items": ["All Accessories", "Women Watches", "Hair Accessories", "Women Belts", "Sunglasses & Spectacle Frames", "Scarves, Stoles & Gloves"]
+      }
+    ]
+  },
+  {
+    "slug": "bags-footwear",
+    "name": "Bags & Footwear",
+    "columns": [
+      {
+        "title": "Women Bags",
+        "items": ["Handbags", "Sling Bags", "Tote Bags", "Clutches", "Wallets & Pouches", "Backpacks", "College Bags"]
+      },
+      {
+        "title": "Women Footwear",
+        "items": ["Flats & Ballerinas", "Heels", "Wedges", "Mojaris & Juttis", "Casual Sneakers", "Slippers & Flip-Flops"]
+      },
+      {
+        "title": "Men Footwear & Travel",
+        "items": ["Casual Sneakers", "Sports Running Shoes", "Formal Shoes", "Loafers", "Sandals & Slippers", "Duffle Bags", "Trolley Bags"]
+      }
+    ]
+  },
+  {
+    "slug": "electronics",
+    "name": "Electronics",
+    "columns": [
+      {
+        "title": "Audio & Sound",
+        "items": ["Wireless Earbuds", "Bluetooth Neckbands", "Portable Speakers", "Wired Earphones", "Noise Cancelling Headphones"]
+      },
+      {
+        "title": "Smart Wearables",
+        "items": ["Smartwatches", "Fitness Trackers", "Power Banks", "Fast Chargers", "Braided USB Cables"]
+      },
+      {
+        "title": "Mobile Accessories",
+        "items": ["Cases & Back Covers", "Tempered Glass", "Laptop Bags", "Ring Lights & Stands", "Car Mobile Holders"]
+      }
+    ]
+  }
+]

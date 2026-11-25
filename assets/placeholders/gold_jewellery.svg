@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+    <defs>
+      <linearGradient id="gg" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#4a341e"/>
+        <stop offset="100%" stop-color="#24170a"/>
+      </linearGradient>
+    </defs>
+    <rect width="100%" height="100%" rx="90" fill="url(#gg)" stroke="#cfa856" stroke-width="2.5"/>
+    <circle cx="100" cy="100" r="50" fill="#3a2514" stroke="#cfa856" stroke-dasharray="3,3"/>
+    <text x="100" y="112" font-size="52" text-anchor="middle">✨</text>
+    <rect x="25" y="185" width="150" height="34" rx="17" fill="#1d1206" stroke="#cfa856" stroke-width="1.5"/>
+    <text x="100" y="207" font-family="'Mukta', sans-serif" font-size="14" font-weight="700" fill="#f8e5b9" text-anchor="middle">Jewellery</text>
+  </svg>
