@@ -100,6 +100,79 @@ When importing products in the Admin Panel (`#/admin`), SheetJS parses files wit
 
 ---
 
+## 🎪 Hero Banners & Carousel Management Guide
+
+The **Hero Banners** management system allows administrators to dynamically customize, schedule, and reorder all promotional slides shown on the homepage without touching any code.
+
+### Accessing the Hero Manager
+1. Log in to the Admin Dashboard at **[http://localhost:3000/#/admin](http://localhost:3000/#/admin)** using `admin@shopverse.com` / `Admin@123`.
+2. Click the **🎪 Hero Banners** tab in the admin navigation bar. (This tab is strictly protected and only accessible to users with the `admin` role).
+
+---
+
+### 1. Adding a New Slide
+1. Click the **`+ New Slide`** button at the top right of the Hero Banners tab.
+2. In the **Content** section, enter your **Headline** (required), choose a headline color, write your **Subtext**, and configure the optional **Badge Pill** text and visibility.
+3. Observe the **🔴 Live Slide Preview** on the right side of the screen; it updates in real time as you type!
+4. Click **`➕ Add Slide to Carousel`** at the bottom to publish the slide.
+
+---
+
+### 2. Uploading a Background Image & Configuring Contrast
+1. In the **2. Background** accordion section, select the **🖼️ Background Image** radio button.
+2. Drag & drop an image file (PNG, JPG, WebP, or SVG, up to 2 MB) into the dashed drop zone, or click **browse** to select a file.
+   - *Optimization feature*: The system automatically compresses and resizes oversized images down to a maximum width of 1920px using the HTML5 Canvas API before saving.
+   - Alternatively, you can paste any direct web image URL into the **Or Paste Image URL** field.
+3. Choose the **Image Position** (`Center`, `Top`, `Bottom`, `Left`, `Right`) and **Size / Fit** (`Cover` to fill the banner, or `Contain`).
+4. Adjust the **Overlay Opacity slider** (0% to 90%) and overlay color to ensure high contrast and readability for headline and tagline text.
+
+---
+
+### 3. Setting Call-to-Action (CTA) Button Links
+1. Open the **4. Call-to-Action Buttons** accordion section.
+2. Under **Primary CTA Button**, customize the **Button Label** (e.g. `Explore Ethnic`).
+3. Set the **Button Link URL**:
+   - For internal navigation without page reload, use hash routes such as `#/category/kurti-saree-lehenga`, `#/category/men`, or `#/category/popular`.
+   - For external sites, use standard full URLs such as `https://example.com` and toggle **Open in new tab**.
+   - *Security protection*: Unsafe schemes like `javascript:` or `data:text/html` are automatically blocked and rejected.
+4. Customize button background and text colors using the color pickers.
+5. Optionally enable and configure a **Secondary Button** (e.g. `Learn More`).
+
+---
+
+### 4. Reordering Slides
+In the **All Carousel Slides** list at the bottom of the tab:
+- **Up / Down Buttons**: Click **`▲`** or **`▼`** next to any slide to immediately move it up or down in the rotation order.
+- **Drag & Drop**: Click and hold the **`☰`** handle on any slide row and drag it to your desired position. The sequence numbers (`#1`, `#2`, `#3`, etc.) update automatically and save instantly.
+
+---
+
+### 5. Scheduling Slides (Start & End Dates)
+1. Open the **6. Schedule & Publication Status** accordion section in the slide editor.
+2. Enter a **Start Date / Time**: The slide will remain hidden from the home page until this timestamp arrives.
+3. Enter an **End Date / Time**: The slide will automatically expire and stop displaying on the home page once this timestamp passes.
+4. Use the **Active** checkbox to manually enable or disable any slide on demand.
+
+---
+
+### 6. Configuring Global Carousel Settings
+Below the slide list, use the **⚙️ Carousel Display & Animation Settings** card to customize:
+- **Autoplay**: Turn automatic slide rotation on or off.
+- **Slide Interval**: Set rotation speed between 2 and 10 seconds.
+- **Transition Animation**: Choose between **Slide** (horizontal transform) or **Fade** (smooth cross-fade dissolve).
+- **Navigation Controls**: Toggle indicator dots and previous/next navigation arrows.
+- **Pause on Hover**: Automatically pause autoplay when visitors hover over the banner.
+- **Desktop & Mobile Banner Heights**: Set custom pixel heights for desktop (e.g. `320px`) and mobile (e.g. `280px`).
+
+---
+
+### 7. Exporting & Importing Hero Slides (JSON)
+- Click **`📤 Export JSON`** to download a backup file (`shopverse_hero_banners.json`) containing all slide configurations and carousel settings.
+- Click **`📥 Import JSON`** to import previously saved or shared hero configurations.
+- Click **`↺ Reset to Defaults`** to restore the original 3 festive seed slides anytime.
+
+---
+
 ## 🖼️ Swapping Placeholder Images for Real Images
 All product image references are stored in `data/products.json`:
 - `image`: Primary square image path (e.g. `assets/placeholders/prod_1.svg`).

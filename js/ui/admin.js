@@ -4,6 +4,7 @@
 
 import { api } from '../api.js';
 import { store } from '../store.js';
+import { renderHeroManager } from './heroManager.js';
 
 function generateProductPlaceholder(name = 'Product', category = 'Shopverse') {
   const safeName = String(name || 'Product').slice(0, 22).replace(/[<>&"']/g, '');
@@ -76,6 +77,7 @@ export async function renderAdminPanel(container) {
   const allProducts = productsRes.items;
   const allOrders = await api.getOrders();
   const totalRev = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const heroSlides = await api.getAllHeroSlides();
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
 
@@ -115,8 +117,8 @@ export async function renderAdminPanel(container) {
             <div class="admin-stat-lbl">Gross Revenue</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val">100+</div>
-            <div class="admin-stat-lbl">Enterprise Clients</div>
+            <div class="admin-stat-val">${heroSlides.length}</div>
+            <div class="admin-stat-lbl">Hero Slides</div>
           </div>
         </div>
 
@@ -124,6 +126,9 @@ export async function renderAdminPanel(container) {
         <div class="admin-tabs-nav">
           <button class="admin-tab-btn ${activeTab === 'products' ? 'active' : ''}" data-tab="products">
             Products Inventory (${allProducts.length})
+          </button>
+          <button class="admin-tab-btn ${activeTab === 'hero' ? 'active' : ''}" data-tab="hero">
+            🎪 Hero Banners (${heroSlides.length})
           </button>
           <button class="admin-tab-btn ${activeTab === 'add' && !editingProduct ? 'active' : ''}" data-tab="add">
             + Add New Product
@@ -825,6 +830,9 @@ export async function renderAdminPanel(container) {
           store.toast('Order status updated!');
         };
       });
+    } else if (activeTab === 'hero') {
+      tabContent.innerHTML = `<div id="admin-hero-mount"></div>`;
+      renderHeroManager(document.getElementById('admin-hero-mount'));
     }
 
     // Tab buttons

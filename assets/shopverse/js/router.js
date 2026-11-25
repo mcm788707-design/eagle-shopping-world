@@ -215,7 +215,7 @@ async function renderHomeView(container) {
   `;
 
   // Mount Hero Carousel
-  renderHeroCarousel(document.getElementById('hero-carousel-mount'));
+  await renderHeroCarousel(document.getElementById('hero-carousel-mount'));
 
   // Mount Products Grid & Sidebar
   renderProductGridManager(document.getElementById('products-listing-mount'));
