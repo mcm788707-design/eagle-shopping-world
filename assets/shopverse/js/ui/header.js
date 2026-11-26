@@ -17,7 +17,10 @@ export function renderHeader(container) {
           <button class="mobile-hamburger" id="btn-mobile-menu" aria-label="Open Navigation">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           </button>
-          <a href="#/" class="logo" aria-label="Eagle Shopping World">Eagle Shopping World</a>
+          <a href="#/" class="logo" aria-label="Eagle Shopping World">
+            <img src="assets/logo.png" alt="Eagle Shopping World Logo" class="logo-img">
+            <span class="logo-text">Eagle Shopping World</span>
+          </a>
         </div>
 
         <!-- Search Box -->

@@ -25,6 +25,39 @@
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 700;
+  color: #B8860B; /* Solid gold fallback */
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.35);
+  border: 1.5px solid #DAA520;
+  background: #000;
+  transition: transform var(--transition-fast);
+}
+
+.logo:hover .logo-img {
+  transform: scale(1.06);
+}
+
+.footer-logo-img {
+  width: 44px;
+  height: 44px;
+}
+
+.logo-text {
   font-size: 22px;
   font-weight: 700;
   color: #B8860B; /* Solid gold fallback */
@@ -36,11 +69,7 @@
   line-height: 1.15;
   text-transform: none;
   font-family: 'DM Sans', 'Mukta', var(--font-family);
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  text-decoration: none;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
+  display: inline-block;
 }
 
 .logo:hover {
@@ -1490,8 +1519,12 @@
    RESPONSIVENESS (1280, 1024, 768, 480)
    ========================================================================== */
 @media (max-width: 1024px) {
-  .logo {
+  .logo, .logo-text {
     font-size: 20px;
+  }
+  .logo-img {
+    width: 36px;
+    height: 36px;
   }
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -1510,9 +1543,16 @@
 
 @media (max-width: 768px) {
   .logo {
-    font-size: 17px;
+    gap: 8px;
+  }
+  .logo, .logo-text {
+    font-size: 16px;
     letter-spacing: -0.3px;
     white-space: nowrap;
+  }
+  .logo-img {
+    width: 32px;
+    height: 32px;
   }
   .header-search {
     display: none;
@@ -1558,10 +1598,17 @@
 
 @media (max-width: 480px) {
   .logo {
-    font-size: 14px;
+    gap: 6px;
+  }
+  .logo, .logo-text {
+    font-size: 13px;
     white-space: normal;
     line-height: 1.1;
     max-width: 125px;
+  }
+  .logo-img {
+    width: 28px;
+    height: 28px;
   }
   .footer-top-grid {
     grid-template-columns: 1fr;

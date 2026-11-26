@@ -11,7 +11,8 @@ export async function renderAdminPanel(container) {
   if (!session || session.role !== 'admin') {
     container.innerHTML = `
       <div class="auth-view-wrap">
-        <div class="auth-card">
+        <div class="auth-card" style="text-align:center">
+          <img src="assets/logo.png" alt="Eagle Shopping World" style="width:64px;height:64px;border-radius:50%;margin-bottom:12px;box-shadow:0 3px 12px rgba(184,134,11,0.3);border:2px solid #DAA520;background:#000;display:inline-block">
           <h2>Admin Login</h2>
           <p style="color:var(--color-text-muted);font-size:13px;margin-bottom:16px">Enter your administrator credentials to access management controls.</p>
           <form id="admin-login-form">
@@ -77,9 +78,12 @@ export async function renderAdminPanel(container) {
     container.innerHTML = `
       <div class="container admin-view-wrap">
         <div class="flex justify-between items-center" style="margin-bottom:20px">
-          <div>
-            <h1 style="font-size:28px;font-weight:900;color:var(--color-primary-dark)">Admin Dashboard</h1>
-            <p style="color:var(--color-text-muted);font-size:14px">Welcome back, ${session.name || 'Eagle Shopping World Administrator'}</p>
+          <div class="flex items-center gap-3">
+            <img src="assets/logo.png" alt="Eagle Shopping World" style="width:48px;height:48px;border-radius:50%;box-shadow:0 2px 8px rgba(184,134,11,0.25);border:1.5px solid #DAA520;background:#000;flex-shrink:0">
+            <div>
+              <h1 style="font-size:28px;font-weight:900;color:var(--color-primary-dark)">Admin Dashboard</h1>
+              <p style="color:var(--color-text-muted);font-size:14px">Welcome back, ${session.name || 'Eagle Shopping World Administrator'}</p>
+            </div>
           </div>
           <button class="btn btn-outline btn-sm" id="btn-admin-logout">Log Out</button>
         </div>

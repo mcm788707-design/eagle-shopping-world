@@ -186,6 +186,9 @@ export async function renderContactView(container) {
       <section class="eg-hero-section">
         <div class="eg-hero-backdrop"></div>
         <div class="container eg-hero-container">
+          <div style="margin-bottom:14px">
+            <img src="assets/logo.png" alt="Eagle Groups Crest" style="width:76px;height:76px;border-radius:50%;object-fit:cover;box-shadow:0 6px 20px rgba(0,0,0,0.5);border:2.5px solid #DAA520;background:#000;display:inline-block">
+          </div>
           <div class="eg-hero-pill-badge">${esc(hero.directoryLabel)}</div>
           <h1 class="eg-hero-title">${esc(hero.title)}</h1>
           
